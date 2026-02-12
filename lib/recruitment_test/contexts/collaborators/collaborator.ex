@@ -7,7 +7,7 @@ defmodule RecruitmentTest.Contexts.Collaborators.Collaborator do
     field :name, :string
     field :email, :string
     field :cpf, :string
-    field :is_active, :boolean, default: true
+    field :is_active, :boolean, default: false
 
     has_many :contracts, RecruitmentTest.Contexts.Contracts.Contract,
       foreign_key: :collaborator_id
