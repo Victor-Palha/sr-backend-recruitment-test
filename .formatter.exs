@@ -1,6 +1,7 @@
 [
   import_deps: [:ecto, :ecto_sql, :phoenix, :absinthe],
-  subdirectories: ["priv/*/migrations", Absinthe.Formatter],
+  plugins: [Absinthe.Formatter],
+  subdirectories: ["priv/*/migrations"],
   inputs: [
     "*.{ex,exs}",
     "{config,lib,test}/**/*.{ex,exs}",

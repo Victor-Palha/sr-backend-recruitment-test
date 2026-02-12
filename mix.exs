@@ -32,7 +32,7 @@ defmodule RecruitmentTest.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:absinthe, "~> 1.7"},
+      {:absinthe, "~> 1.7", override: true},
       {:absinthe_plug, "~> 1.5"},
       {:phoenix, "~> 1.7.18"},
       {:phoenix_ecto, "~> 4.5"},

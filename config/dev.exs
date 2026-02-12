@@ -2,10 +2,10 @@ import Config
 
 # Configure your database
 config :recruitment_test, RecruitmentTest.Repo,
-  username: System.get_env("DATABASE_USER") || "user",
-  password: System.get_env("DATABASE_PASSWORD") || "password",
+  username: System.get_env("DATABASE_USER") || "db_user",
+  password: System.get_env("DATABASE_PASSWORD") || "db_password",
   database: System.get_env("DATABASE_DB") || "recruitment_test_dev",
-  hostname: System.get_env("DATABASE_HOST") || "database",
+  hostname: System.get_env("DATABASE_HOST") || "localhost",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10,
