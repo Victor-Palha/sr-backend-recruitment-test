@@ -15,8 +15,5 @@ defmodule RecruitmentTest.Contexts.Enterprises.Services.FindById do
       nil -> {:error, "Enterprise not found"}
       enterprise -> {:ok, enterprise}
     end
-  rescue
-    Ecto.Query.CastError -> {:error, "Enterprise not found"}
-    ArgumentError -> {:error, "Enterprise not found"}
   end
 end
