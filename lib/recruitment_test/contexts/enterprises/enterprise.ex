@@ -57,4 +57,12 @@ defmodule RecruitmentTest.Contexts.Enterprises.Enterprise do
   defp numbers_only(value) do
     String.replace(value, ~r/[^\d]/, "")
   end
+
+  def update_changeset(enterprise, attrs) do
+    enterprise
+    |> cast(attrs, [:name, :commercial_name, :description])
+    |> handle_name()
+    |> handle_commercial_name()
+    |> handle_description()
+  end
 end
