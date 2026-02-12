@@ -4,8 +4,41 @@ defmodule RecruitmentTest.Contexts.Enterprises.Services.Create do
   """
   alias RecruitmentTest.Contexts.Enterprises.Enterprise
   alias RecruitmentTest.Repo
+  @cnpj_validator Application.compile_env(:recruitment_test, :cnpj_validator)
 
+  @spec call(
+          attrs :: %{
+            cnpj: String.t(),
+            description: String.t() | nil
+          }
+        ) :: {:ok, map()} | {:error, Ecto.Changeset.t()} | {:error, String.t()}
   def call(attrs) do
+    with {:ok, cnpj_data} <- validate_cnpj(attrs.cnpj),
+         merged_attrs <- merge_cnpj_data(attrs, cnpj_data),
+         {:ok, enterprise} <- insert_enterprise(merged_attrs) do
+      {:ok, enterprise}
+    else
+      {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+      {:error, reason} when is_binary(reason) -> {:error, reason}
+    end
+  end
+
+  defp validate_cnpj(cnpj) do
+    case @cnpj_validator.validate(cnpj) do
+      {:ok, data} -> {:ok, data}
+      {:error, reason} -> {:error, "Invalid CNPJ: #{reason}"}
+    end
+  end
+
+  defp merge_cnpj_data(attrs, cnpj_data) do
+    Map.merge(attrs, %{
+      cnpj: cnpj_data.cnpj,
+      name: cnpj_data.name,
+      commercial_name: cnpj_data.commercial_name
+    })
+  end
+
+  defp insert_enterprise(attrs) do
     %Enterprise{}
     |> Enterprise.changeset(attrs)
     |> Repo.insert()
