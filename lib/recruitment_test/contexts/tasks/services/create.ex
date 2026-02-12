@@ -20,7 +20,6 @@ defmodule RecruitmentTest.Contexts.Tasks.Services.Create do
          {:ok, true} <- is_collaborator_active?(collaborator) do
       insert_task(attrs)
     else
-      {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
       {:error, reason} when is_binary(reason) -> {:error, reason}
     end
   end
