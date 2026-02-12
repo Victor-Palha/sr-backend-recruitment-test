@@ -51,4 +51,11 @@ defmodule RecruitmentTest.Contexts.Contracts.Contract do
         changeset
     end
   end
+
+  def update_changeset(contract, attrs) do
+    contract
+    |> cast(attrs, [:value, :starts_at, :expires_at, :status])
+    |> validate_inclusion(:status, @valid_statuses)
+    |> validate_dates()
+  end
 end
