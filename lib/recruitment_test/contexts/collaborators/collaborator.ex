@@ -63,4 +63,16 @@ defmodule RecruitmentTest.Contexts.Collaborators.Collaborator do
   defp numbers_only(value) do
     String.replace(value, ~r/[^\d]/, "")
   end
+
+  def update_changeset(collaborator, attrs) do
+    collaborator
+    |> cast(attrs, [:name, :email])
+    |> handle_name()
+    |> handle_email()
+  end
+
+  def deactivate_changeset(collaborator) do
+    collaborator
+    |> change(is_active: false)
+  end
 end
