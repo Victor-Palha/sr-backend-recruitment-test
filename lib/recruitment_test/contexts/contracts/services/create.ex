@@ -3,11 +3,8 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.Create do
   Service module responsible for creating a new contract between an enterprise and a collaborator.
   """
   alias RecruitmentTest.Contexts.Contracts.Contract
-  alias RecruitmentTest.Contexts.Enterprises.Enterprise
   alias RecruitmentTest.Contexts.Collaborators.Collaborator
   alias RecruitmentTest.Repo
-
-  import Ecto.Query
 
   @spec call(
           attrs :: %{
@@ -22,32 +19,37 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.Create do
   def call(attrs) do
     with {:ok, enterprise_id} <- get_enterprise_id(attrs),
          {:ok, collaborator_id} <- get_collaborator_id(attrs),
-         true <- does_enterprise_exist?(enterprise_id),
-         true <- does_collaborator_exist?(collaborator_id),
+         {:ok, _enterprise} <- does_enterprise_exist(enterprise_id),
+         {:ok, collaborator} <- does_collaborator_exist(collaborator_id),
          {:ok, contract} <- insert_contract(attrs),
-         {:ok, _collaborator} <- activate_collaborator(collaborator_id) do
+         {:ok, _collaborator} <- activate_collaborator(collaborator) do
       {:ok, contract}
     else
-      false -> {:error, "Enterprise or Collaborator not found"}
       {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+      {:error, "Enterprise not found"} -> {:error, "Enterprise not found"}
+      {:error, "Collaborator not found"} -> {:error, "Collaborator not found"}
       {:error, reason} -> {:error, reason}
     end
   end
 
   defp get_enterprise_id(%{enterprise_id: enterprise_id}), do: {:ok, enterprise_id}
-  defp get_enterprise_id(_), do: {:error, "Enterprise or Collaborator not found"}
+  defp get_enterprise_id(_), do: {:error, "Enterprise not found"}
 
   defp get_collaborator_id(%{collaborator_id: collaborator_id}), do: {:ok, collaborator_id}
-  defp get_collaborator_id(_), do: {:error, "Enterprise or Collaborator not found"}
+  defp get_collaborator_id(_), do: {:error, "Collaborator not found"}
 
-  defp does_enterprise_exist?(enterprise_id) do
-    from(e in Enterprise, where: e.id == ^enterprise_id)
-    |> Repo.exists?()
+  defp does_enterprise_exist(enterprise_id) do
+    case RecruitmentTest.Contexts.Enterprises.Services.FindById.call(enterprise_id) do
+      {:ok, enterprise} -> {:ok, enterprise}
+      {:error, _reason} -> {:error, "Enterprise not found"}
+    end
   end
 
-  defp does_collaborator_exist?(collaborator_id) do
-    from(c in Collaborator, where: c.id == ^collaborator_id)
-    |> Repo.exists?()
+  defp does_collaborator_exist(collaborator_id) do
+    case RecruitmentTest.Contexts.Collaborators.Services.FindById.call(collaborator_id) do
+      {:ok, collaborator} -> {:ok, collaborator}
+      {:error, _reason} -> {:error, "Collaborator not found"}
+    end
   end
 
   defp insert_contract(attrs) do
@@ -56,9 +58,7 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.Create do
     |> Repo.insert()
   end
 
-  defp activate_collaborator(collaborator_id) do
-    collaborator = Repo.get!(Collaborator, collaborator_id)
-
+  defp activate_collaborator(%Collaborator{} = collaborator) do
     collaborator
     |> Collaborator.changeset(%{is_active: true})
     |> Repo.update()

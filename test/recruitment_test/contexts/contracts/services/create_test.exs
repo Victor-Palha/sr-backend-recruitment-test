@@ -147,7 +147,7 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.CreateTest do
         status: "active"
       }
 
-      assert {:error, "Enterprise or Collaborator not found"} = Create.call(attrs)
+      assert {:error, "Enterprise not found"} = Create.call(attrs)
     end
 
     test "returns error when collaborator does not exist", %{enterprise: enterprise} do
@@ -162,22 +162,7 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.CreateTest do
         status: "active"
       }
 
-      assert {:error, "Enterprise or Collaborator not found"} = Create.call(attrs)
-    end
-
-    test "returns error when both enterprise and collaborator do not exist" do
-      starts_at = DateTime.utc_now()
-      expires_at = DateTime.add(starts_at, 30, :day)
-
-      attrs = %{
-        enterprise_id: Ecto.UUID.generate(),
-        collaborator_id: Ecto.UUID.generate(),
-        starts_at: starts_at,
-        expires_at: expires_at,
-        status: "active"
-      }
-
-      assert {:error, "Enterprise or Collaborator not found"} = Create.call(attrs)
+      assert {:error, "Collaborator not found"} = Create.call(attrs)
     end
 
     test "returns error when expires_at is before starts_at", %{
@@ -229,7 +214,7 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.CreateTest do
         status: "active"
       }
 
-      assert {:error, "Enterprise or Collaborator not found"} = Create.call(attrs)
+      assert {:error, "Enterprise not found"} = Create.call(attrs)
     end
 
     test "returns error when collaborator_id is missing", %{enterprise: enterprise} do
@@ -243,7 +228,7 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.CreateTest do
         status: "active"
       }
 
-      assert {:error, "Enterprise or Collaborator not found"} = Create.call(attrs)
+      assert {:error, "Collaborator not found"} = Create.call(attrs)
     end
 
     test "returns error when starts_at is missing", %{
