@@ -1,4 +1,4 @@
-defmodule RecruitmentTest.Tasks.Task do
+defmodule RecruitmentTest.Contexts.Tasks.Task do
   use RecruitmentTest.Schema
 
   import Ecto.Changeset
@@ -11,8 +11,8 @@ defmodule RecruitmentTest.Tasks.Task do
     field :status, :string, default: "pending"
     field :priority, :integer, default: 0
 
-    belongs_to :collaborator, RecruitmentTest.Collaborators.Collaborator
-    has_one :report, RecruitmentTest.Reports.Report
+    belongs_to :collaborator, RecruitmentTest.Contexts.Collaborators.Collaborator
+    has_one :report, RecruitmentTest.Contexts.Reports.Report
 
     timestamps()
   end

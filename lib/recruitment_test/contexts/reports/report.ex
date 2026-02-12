@@ -1,4 +1,4 @@
-defmodule RecruitmentTest.Reports.Report do
+defmodule RecruitmentTest.Contexts.Reports.Report do
   use RecruitmentTest.Schema
 
   import Ecto.Changeset
@@ -9,8 +9,8 @@ defmodule RecruitmentTest.Reports.Report do
     field :collaborator_name, :string
     field :completed_at, :utc_datetime
 
-    belongs_to :collaborator, RecruitmentTest.Collaborators.Collaborator
-    belongs_to :task, RecruitmentTest.Tasks.Task
+    belongs_to :collaborator, RecruitmentTest.Contexts.Collaborators.Collaborator
+    belongs_to :task, RecruitmentTest.Contexts.Tasks.Task
 
     timestamps(updated_at: false)
   end

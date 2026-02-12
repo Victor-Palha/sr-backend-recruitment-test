@@ -1,4 +1,4 @@
-defmodule RecruitmentTest.Contracts.Contract do
+defmodule RecruitmentTest.Contexts.Contracts.Contract do
   use RecruitmentTest.Schema
 
   import Ecto.Changeset
@@ -11,8 +11,8 @@ defmodule RecruitmentTest.Contracts.Contract do
     field :expires_at, :utc_datetime
     field :status, :string, default: "active"
 
-    belongs_to :enterprise, RecruitmentTest.Enterprises.Enterprise
-    belongs_to :collaborator, RecruitmentTest.Collaborators.Collaborator
+    belongs_to :enterprise, RecruitmentTest.Contexts.Enterprises.Enterprise
+    belongs_to :collaborator, RecruitmentTest.Contexts.Collaborators.Collaborator
 
     timestamps()
   end

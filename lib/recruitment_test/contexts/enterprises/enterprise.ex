@@ -1,4 +1,4 @@
-defmodule RecruitmentTest.Enterprises.Enterprise do
+defmodule RecruitmentTest.Contexts.Enterprises.Enterprise do
   use RecruitmentTest.Schema
 
   import Ecto.Changeset
@@ -9,7 +9,7 @@ defmodule RecruitmentTest.Enterprises.Enterprise do
     field :cnpj, :string
     field :description, :string
 
-    has_many :contracts, RecruitmentTest.Contracts.Contract, foreign_key: :enterprise_id
+    has_many :contracts, RecruitmentTest.Contexts.Contracts.Contract, foreign_key: :enterprise_id
 
     timestamps()
   end

@@ -1,4 +1,4 @@
-defmodule RecruitmentTest.Collaborators.Collaborator do
+defmodule RecruitmentTest.Contexts.Collaborators.Collaborator do
   use RecruitmentTest.Schema
 
   import Ecto.Changeset
@@ -9,9 +9,11 @@ defmodule RecruitmentTest.Collaborators.Collaborator do
     field :cpf, :string
     field :is_active, :boolean, default: true
 
-    has_many :contracts, RecruitmentTest.Contracts.Contract, foreign_key: :collaborator_id
-    has_many :tasks, RecruitmentTest.Tasks.Task, foreign_key: :collaborator_id
-    has_many :reports, RecruitmentTest.Reports.Report, foreign_key: :collaborator_id
+    has_many :contracts, RecruitmentTest.Contexts.Contracts.Contract,
+      foreign_key: :collaborator_id
+
+    has_many :tasks, RecruitmentTest.Contexts.Tasks.Task, foreign_key: :collaborator_id
+    has_many :reports, RecruitmentTest.Contexts.Reports.Report, foreign_key: :collaborator_id
 
     timestamps()
   end
