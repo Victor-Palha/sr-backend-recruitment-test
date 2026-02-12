@@ -6,10 +6,9 @@ defmodule RecruitmentTest.Repo.Migrations.AddEnterprisesTable do
       add :name, :string, null: false
       add :commercial_name, :string, null: false
       add :cnpj, :string, null: false
-      add :description, :string, null: false
+      add :description, :text
 
       timestamps()
-      # soft_delete_columns()
     end
 
     create unique_index(:enterprises, [:cnpj])

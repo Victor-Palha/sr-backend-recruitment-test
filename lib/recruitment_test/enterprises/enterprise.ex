@@ -9,6 +9,8 @@ defmodule RecruitmentTest.Enterprises.Enterprise do
     field :cnpj, :string
     field :description, :string
 
+    has_many :contracts, RecruitmentTest.Contracts.Contract, foreign_key: :enterprise_id
+
     timestamps()
   end
 
@@ -49,8 +51,7 @@ defmodule RecruitmentTest.Enterprises.Enterprise do
 
   defp handle_description(changeset) do
     changeset
-    |> validate_required(:description)
-    |> validate_length(:description, max: 250)
+    |> validate_length(:description, max: 5000)
   end
 
   defp numbers_only(value) do
