@@ -49,7 +49,8 @@ defmodule RecruitmentTest.MixProject do
       {:corsica, "~> 1.0"},
       {:httpoison, "~> 2.3"},
       {:guardian, "~> 2.3"},
-      {:bcrypt_elixir, "~> 3.0"}
+      {:bcrypt_elixir, "~> 3.0"},
+      {:dataloader, "~> 1.0.11"}
     ]
   end
 

@@ -9,6 +9,21 @@ defmodule RecruitmentTestWeb.Schema do
   import_types RecruitmentTestWeb.Graphql.Types.Task
   import_types RecruitmentTestWeb.Graphql.Types.Report
 
+  def plugins do
+    [Absinthe.Middleware.Dataloader | Absinthe.Plugin.defaults()]
+  end
+
+  def context(ctx) do
+    loader =
+      Dataloader.new()
+      |> Dataloader.add_source(
+        RecruitmentTest.Contexts.Content,
+        RecruitmentTest.Contexts.Content.data()
+      )
+
+    Map.put(ctx, :loader, loader)
+  end
+
   query do
     @desc "A simple health check endpoint"
     field :health_check, :string do
