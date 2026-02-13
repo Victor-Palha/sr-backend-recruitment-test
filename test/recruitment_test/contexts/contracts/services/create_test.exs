@@ -288,7 +288,6 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.CreateTest do
       enterprise: enterprise,
       collaborator: collaborator
     } do
-      # First contract
       starts_at_1 = DateTime.utc_now()
       expires_at_1 = DateTime.add(starts_at_1, 30, :day)
 

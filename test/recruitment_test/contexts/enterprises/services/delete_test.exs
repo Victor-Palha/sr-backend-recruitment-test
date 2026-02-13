@@ -69,7 +69,6 @@ defmodule RecruitmentTest.Contexts.Enterprises.Services.DeleteTest do
       assert {:error, "Cannot delete enterprise with existing contracts"} =
                Delete.call(enterprise.id)
 
-      # Verify enterprise was not deleted
       assert Repo.get(Enterprise, enterprise.id) != nil
     end
 

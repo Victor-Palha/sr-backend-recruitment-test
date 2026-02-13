@@ -10,6 +10,7 @@ defmodule RecruitmentTestWeb.Schema do
   import_types RecruitmentTestWeb.Graphql.Types.Report
 
   alias RecruitmentTestWeb.Graphql.Resolvers
+  alias RecruitmentTestWeb.Graphql.Middleware
 
   def plugins do
     [Absinthe.Middleware.Dataloader | Absinthe.Plugin.defaults()]
@@ -24,6 +25,18 @@ defmodule RecruitmentTestWeb.Schema do
       )
 
     Map.put(ctx, :loader, loader)
+  end
+
+  def middleware(middleware, _field, %{identifier: :query}) do
+    [Middleware.Authenticate | middleware]
+  end
+
+  def middleware(middleware, _field, %{identifier: :mutation}) do
+    [Middleware.Authenticate, {Middleware.Authorize, "admin"} | middleware]
+  end
+
+  def middleware(middleware, _field, _object) do
+    middleware
   end
 
   query do

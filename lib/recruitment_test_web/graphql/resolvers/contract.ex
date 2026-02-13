@@ -29,7 +29,10 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Contract do
   end
 
   def list_contracts_by_enterprise(_parent, %{enterprise_id: enterprise_id}, _resolution) do
-    Services.FindByEnterpriseId.call(enterprise_id)
+    case Services.FindByEnterpriseId.call(enterprise_id) do
+      {:error, _reason} = error -> error
+      contracts when is_list(contracts) -> {:ok, contracts}
+    end
   end
 
   def create_contract(_parent, %{input: attrs}, _resolution) do

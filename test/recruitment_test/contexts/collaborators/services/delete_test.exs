@@ -24,7 +24,6 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
       assert deactivated_collaborator.name == "John Doe"
       assert deactivated_collaborator.is_active == false
 
-      # Verify collaborator still exists in database
       persisted = Repo.get(Collaborator, collaborator.id)
       assert persisted != nil
       assert persisted.is_active == false
@@ -74,10 +73,8 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
       assert {:ok, deactivated} = Delete.call(collaborator.id)
       assert deactivated.is_active == false
 
-      # Verify collaborator still exists
       assert Repo.get(Collaborator, collaborator.id) != nil
 
-      # Verify contract still exists
       assert Repo.get(Contract, contract.id) != nil
     end
 
@@ -106,10 +103,8 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
       assert {:ok, deactivated} = Delete.call(collaborator.id)
       assert deactivated.is_active == false
 
-      # Verify collaborator still exists
       assert Repo.get(Collaborator, collaborator.id) != nil
 
-      # Verify task still exists
       assert Repo.get(Task, task.id) != nil
     end
 
@@ -161,10 +156,8 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
       assert {:ok, deactivated} = Delete.call(collaborator.id)
       assert deactivated.is_active == false
 
-      # Verify collaborator still exists
       assert Repo.get(Collaborator, collaborator.id) != nil
 
-      # Verify contract and task still exist
       assert Repo.get(Contract, contract.id) != nil
       assert Repo.get(Task, task.id) != nil
     end
@@ -196,7 +189,6 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
       assert {:ok, deactivated2} = Delete.call(collaborator2.id)
       assert deactivated2.is_active == false
 
-      # Verify both still exist in database but are inactive
       assert Repo.get(Collaborator, collaborator1.id).is_active == false
       assert Repo.get(Collaborator, collaborator2.id).is_active == false
     end
@@ -256,10 +248,8 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
         })
         |> Repo.insert()
 
-      # Delete the collaborator
       assert {:ok, _deactivated} = Delete.call(collaborator.id)
 
-      # Try to delete again - should still work (idempotent)
       assert {:ok, deactivated_again} = Delete.call(collaborator.id)
       assert deactivated_again.is_active == false
     end
@@ -285,11 +275,9 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
         })
         |> Repo.insert()
 
-      # Delete first collaborator
       assert {:ok, _deactivated} = Delete.call(collaborator1.id)
       assert Repo.get(Collaborator, collaborator1.id).is_active == false
 
-      # Second collaborator still active
       assert Repo.get(Collaborator, collaborator2.id).is_active == true
     end
 
@@ -332,7 +320,6 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
       assert deactivated.is_active == false
       assert Repo.get(Collaborator, collaborator.id) != nil
 
-      # Verify contract still exists
       assert Repo.get(Contract, contract.id) != nil
     end
 
@@ -375,7 +362,6 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
       assert deactivated.is_active == false
       assert Repo.get(Collaborator, collaborator.id) != nil
 
-      # Verify contract still exists
       assert Repo.get(Contract, contract.id) != nil
     end
 
@@ -405,7 +391,6 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
       assert deactivated.is_active == false
       assert Repo.get(Collaborator, collaborator.id) != nil
 
-      # Verify task still exists
       assert Repo.get(Task, task.id) != nil
     end
 
@@ -434,7 +419,6 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.DeleteTest do
       assert deactivated.is_active == false
       assert Repo.get(Collaborator, collaborator.id) != nil
 
-      # Verify task still exists
       assert Repo.get(Task, task.id) != nil
     end
 

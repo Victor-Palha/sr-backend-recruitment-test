@@ -6,13 +6,18 @@ defmodule RecruitmentTestWeb.Graphql.Middleware.Authorize do
   @behaviour Absinthe.Middleware
 
   def call(resolution, role) do
-    with %{current_user: _user, role: user_role} <- resolution.context,
-         true <- authorized?(user_role, role) do
+    # Skip if there's already an error (e.g., from Authenticate middleware)
+    if resolution.state == :resolved do
       resolution
     else
-      _ ->
+      with %{current_user: _user, role: user_role} <- resolution.context,
+           true <- authorized?(user_role, role) do
         resolution
-        |> Absinthe.Resolution.put_result({:error, "Forbidden - Insufficient permissions"})
+      else
+        _ ->
+          resolution
+          |> Absinthe.Resolution.put_result({:error, "Forbidden - Insufficient permissions"})
+      end
     end
   end
 
