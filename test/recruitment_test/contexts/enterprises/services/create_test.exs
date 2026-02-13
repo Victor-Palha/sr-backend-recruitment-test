@@ -75,8 +75,8 @@ defmodule RecruitmentTest.Contexts.Enterprises.Services.CreateTest do
         description: "Duplicate enterprise"
       }
 
-      assert {:error, %Ecto.Changeset{} = changeset} = Create.call(duplicate_attrs)
-      assert "has already been taken" in errors_on(changeset).cnpj
+      assert {:error, "An enterprise with this CNPJ already exists"} =
+               Create.call(duplicate_attrs)
     end
 
     test "returns changeset error when data is invalid" do

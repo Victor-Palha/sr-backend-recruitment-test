@@ -15,6 +15,7 @@ defmodule RecruitmentTest.Contexts.Enterprises.Services.Create do
   def call(attrs) do
     with {:ok, cnpj_data} <- validate_cnpj(attrs.cnpj),
          merged_attrs <- merge_cnpj_data(attrs, cnpj_data),
+         {:ok, _} <- enterprise_with_same_cnpj_exists?(cnpj_data.cnpj),
          {:ok, enterprise} <- insert_enterprise(merged_attrs) do
       {:ok, enterprise}
     else
@@ -36,6 +37,14 @@ defmodule RecruitmentTest.Contexts.Enterprises.Services.Create do
       name: cnpj_data.name,
       commercial_name: cnpj_data.commercial_name
     })
+  end
+
+  defp enterprise_with_same_cnpj_exists?(cnpj) do
+    RecruitmentTest.Contexts.Enterprises.Services.FindByCnpj.call(cnpj)
+    |> case do
+      {:ok, _enterprise} -> {:error, "An enterprise with this CNPJ already exists"}
+      {:error, _reason} -> {:ok, false}
+    end
   end
 
   defp insert_enterprise(attrs) do

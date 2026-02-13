@@ -51,8 +51,8 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.CreateTest do
         cpf: "12345678901"
       }
 
-      assert {:error, %Ecto.Changeset{} = changeset} = Create.call(attrs)
-      assert "can't be blank" in errors_on(changeset).name
+      assert {:error, "Invalid attributes. Name, email and CPF are required."} =
+               Create.call(attrs)
     end
 
     test "returns error when email is missing" do
@@ -61,8 +61,8 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.CreateTest do
         cpf: "12345678901"
       }
 
-      assert {:error, %Ecto.Changeset{} = changeset} = Create.call(attrs)
-      assert "can't be blank" in errors_on(changeset).email
+      assert {:error, "Invalid attributes. Name, email and CPF are required."} =
+               Create.call(attrs)
     end
 
     test "returns error when email is invalid format" do
@@ -93,8 +93,8 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.CreateTest do
         email: "test@example.com"
       }
 
-      assert {:error, %Ecto.Changeset{} = changeset} = Create.call(attrs)
-      assert "can't be blank" in errors_on(changeset).cpf
+      assert {:error, "Invalid attributes. Name, email and CPF are required."} =
+               Create.call(attrs)
     end
 
     test "returns error when cpf has incorrect length" do
@@ -158,8 +158,8 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.CreateTest do
         cpf: "98765432100"
       }
 
-      assert {:error, %Ecto.Changeset{} = changeset} = Create.call(duplicate_attrs)
-      assert "has already been taken" in errors_on(changeset).email
+      assert {:error, "A collaborator with this email already exists"} =
+               Create.call(duplicate_attrs)
     end
 
     test "returns error when trying to create duplicate cpf" do
@@ -177,8 +177,8 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.CreateTest do
         cpf: "11122233344"
       }
 
-      assert {:error, %Ecto.Changeset{} = changeset} = Create.call(duplicate_attrs)
-      assert "has already been taken" in errors_on(changeset).cpf
+      assert {:error, "A collaborator with this CPF already exists"} =
+               Create.call(duplicate_attrs)
     end
 
     test "uses default value for is_active when not provided" do
