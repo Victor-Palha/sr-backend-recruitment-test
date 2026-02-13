@@ -76,9 +76,14 @@ defmodule RecruitmentTestWeb.Graphql.TaskTest do
       query = """
       query {
         tasks {
-          id
-          name
-          status
+          data {
+            id
+            name
+            status
+          }
+          pageInfo {
+            totalCount
+          }
         }
       }
       """
@@ -86,8 +91,8 @@ defmodule RecruitmentTestWeb.Graphql.TaskTest do
       conn = query_graphql(conn, query, %{}, authenticated_context(user))
       result = json_response(conn, 200)
 
-      assert length(result["data"]["tasks"]) == 2
-      names = Enum.map(result["data"]["tasks"], & &1["name"])
+      assert length(result["data"]["tasks"]["data"]) == 2
+      names = Enum.map(result["data"]["tasks"]["data"], & &1["name"])
       assert "Task One" in names
       assert "Task Two" in names
     end
@@ -96,8 +101,10 @@ defmodule RecruitmentTestWeb.Graphql.TaskTest do
       query = """
       query {
         tasks {
-          id
-          name
+          data {
+            id
+            name
+          }
         }
       }
       """
@@ -107,6 +114,118 @@ defmodule RecruitmentTestWeb.Graphql.TaskTest do
 
       assert result["errors"]
       assert hd(result["errors"])["message"] == "Unauthorized - Invalid or missing token"
+    end
+  end
+
+  describe "tasks query with pagination" do
+    test "returns paginated tasks", %{conn: conn} do
+      user = create_user()
+
+      for i <- 1..10 do
+        create_task(%{name: "Task #{i}", status: "pending"})
+      end
+
+      query = """
+      query GetTasks($pagination: PaginationInput) {
+        tasks(pagination: $pagination) {
+          data {
+            id
+            name
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(
+          conn,
+          query,
+          %{pagination: %{page: 1, pageSize: 5}},
+          authenticated_context(user)
+        )
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["tasks"]["data"]) == 5
+      assert result["data"]["tasks"]["pageInfo"]["hasNextPage"] == true
+      assert result["data"]["tasks"]["pageInfo"]["totalCount"] == 10
+    end
+  end
+
+  describe "tasks query with filters" do
+    test "filters by status", %{conn: conn} do
+      user = create_user()
+      _task1 = create_task(%{name: "Task 1", status: "pending"})
+      _task2 = create_task(%{name: "Task 2", status: "completed"})
+      _task3 = create_task(%{name: "Task 3", status: "pending"})
+      _task4 = create_task(%{name: "Task 4", status: "in_progress"})
+
+      query = """
+      query GetTasks($filters: TaskFilters) {
+        tasks(filters: $filters) {
+          data {
+            id
+            name
+            status
+          }
+          pageInfo {
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(conn, query, %{filters: %{status: "PENDING"}}, authenticated_context(user))
+
+      result = json_response(conn, 200)
+
+      # Check for errors first
+      refute result["errors"], "GraphQL returned errors: #{inspect(result["errors"])}"
+
+      assert length(result["data"]["tasks"]["data"]) == 2
+      assert result["data"]["tasks"]["pageInfo"]["totalCount"] == 2
+
+      Enum.each(result["data"]["tasks"]["data"], fn task ->
+        assert task["status"] == "PENDING"
+      end)
+    end
+
+    test "filters by priority", %{conn: conn} do
+      user = create_user()
+      _task1 = create_task(%{name: "High Priority", priority: 1})
+      _task2 = create_task(%{name: "Low Priority", priority: 3})
+      _task3 = create_task(%{name: "Another High", priority: 1})
+
+      query = """
+      query GetTasks($filters: TaskFilters) {
+        tasks(filters: $filters) {
+          data {
+            id
+            name
+            priority
+          }
+          pageInfo {
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn = query_graphql(conn, query, %{filters: %{priority: 1}}, authenticated_context(user))
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["tasks"]["data"]) == 2
+      assert result["data"]["tasks"]["pageInfo"]["totalCount"] == 2
+
+      Enum.each(result["data"]["tasks"]["data"], fn task ->
+        assert task["priority"] == 1
+      end)
     end
   end
 

@@ -78,8 +78,13 @@ defmodule RecruitmentTestWeb.Graphql.ContractTest do
       query = """
       query {
         contracts {
-          id
-          status
+          data {
+            id
+            status
+          }
+          pageInfo {
+            totalCount
+          }
         }
       }
       """
@@ -87,8 +92,8 @@ defmodule RecruitmentTestWeb.Graphql.ContractTest do
       conn = query_graphql(conn, query, %{}, authenticated_context(user))
       result = json_response(conn, 200)
 
-      assert length(result["data"]["contracts"]) == 2
-      statuses = Enum.map(result["data"]["contracts"], & &1["status"])
+      assert length(result["data"]["contracts"]["data"]) == 2
+      statuses = Enum.map(result["data"]["contracts"]["data"], & &1["status"])
       assert "ACTIVE" in statuses
       assert "EXPIRED" in statuses
     end
@@ -97,8 +102,10 @@ defmodule RecruitmentTestWeb.Graphql.ContractTest do
       query = """
       query {
         contracts {
-          id
-          status
+          data {
+            id
+            status
+          }
         }
       }
       """
@@ -111,33 +118,81 @@ defmodule RecruitmentTestWeb.Graphql.ContractTest do
     end
   end
 
-  describe "contractsByEnterprise query" do
-    test "returns contracts for a specific enterprise", %{conn: conn} do
+  describe "contracts query with pagination" do
+    test "returns paginated contracts", %{conn: conn} do
       user = create_user()
-      enterprise = create_enterprise()
-      collaborator = create_collaborator()
-      contract1 = create_contract(%{enterprise: enterprise, collaborator: collaborator})
-      contract2 = create_contract(%{enterprise: enterprise, collaborator: collaborator})
-      _other_contract = create_contract()
+
+      for _i <- 1..12 do
+        create_contract(%{status: "active"})
+      end
 
       query = """
-      query GetContractsByEnterprise($enterpriseId: ID!) {
-        contractsByEnterprise(enterpriseId: $enterpriseId) {
-          id
-          status
+      query GetContracts($pagination: PaginationInput) {
+        contracts(pagination: $pagination) {
+          data {
+            id
+            status
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            totalCount
+          }
         }
       }
       """
 
       conn =
-        query_graphql(conn, query, %{enterpriseId: enterprise.id}, authenticated_context(user))
+        query_graphql(
+          conn,
+          query,
+          %{pagination: %{page: 1, pageSize: 5}},
+          authenticated_context(user)
+        )
 
       result = json_response(conn, 200)
 
-      contract_ids = Enum.map(result["data"]["contractsByEnterprise"], & &1["id"])
-      assert length(contract_ids) == 2
-      assert contract1.id in contract_ids
-      assert contract2.id in contract_ids
+      assert length(result["data"]["contracts"]["data"]) == 5
+      assert result["data"]["contracts"]["pageInfo"]["hasNextPage"] == true
+      assert result["data"]["contracts"]["pageInfo"]["totalCount"] == 12
+    end
+  end
+
+  describe "contracts query with filters" do
+    test "filters by status", %{conn: conn} do
+      user = create_user()
+      _contract1 = create_contract(%{status: "active"})
+      _contract2 = create_contract(%{status: "expired"})
+      _contract3 = create_contract(%{status: "active"})
+      _contract4 = create_contract(%{status: "cancelled"})
+
+      query = """
+      query GetContracts($filters: ContractFilters) {
+        contracts(filters: $filters) {
+          data {
+            id
+            status
+          }
+          pageInfo {
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(conn, query, %{filters: %{status: "ACTIVE"}}, authenticated_context(user))
+
+      result = json_response(conn, 200)
+
+      refute result["errors"], "GraphQL returned errors: #{inspect(result["errors"])}"
+
+      assert length(result["data"]["contracts"]["data"]) == 2
+      assert result["data"]["contracts"]["pageInfo"]["totalCount"] == 2
+
+      Enum.each(result["data"]["contracts"]["data"], fn contract ->
+        assert contract["status"] == "ACTIVE"
+      end)
     end
   end
 

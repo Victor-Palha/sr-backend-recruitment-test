@@ -75,9 +75,16 @@ defmodule RecruitmentTestWeb.Graphql.CollaboratorTest do
       query = """
       query {
         collaborators {
-          id
-          name
-          email
+          data {
+            id
+            name
+            email
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            totalCount
+          }
         }
       }
       """
@@ -85,18 +92,21 @@ defmodule RecruitmentTestWeb.Graphql.CollaboratorTest do
       conn = query_graphql(conn, query, %{}, authenticated_context(user))
       result = json_response(conn, 200)
 
-      assert length(result["data"]["collaborators"]) == 2
-      names = Enum.map(result["data"]["collaborators"], & &1["name"])
+      assert length(result["data"]["collaborators"]["data"]) == 2
+      names = Enum.map(result["data"]["collaborators"]["data"], & &1["name"])
       assert "Alice" in names
       assert "Bob" in names
+      assert result["data"]["collaborators"]["pageInfo"]["totalCount"] == 2
     end
 
     test "returns error when not authenticated", %{conn: conn} do
       query = """
       query {
         collaborators {
-          id
-          name
+          data {
+            id
+            name
+          }
         }
       }
       """
@@ -106,6 +116,338 @@ defmodule RecruitmentTestWeb.Graphql.CollaboratorTest do
 
       assert result["errors"]
       assert hd(result["errors"])["message"] == "Unauthorized - Invalid or missing token"
+    end
+  end
+
+  describe "collaborators query with pagination" do
+    test "returns paginated collaborators", %{conn: conn} do
+      user = create_user()
+
+      # Create 15 collaborators
+      for i <- 1..15 do
+        create_collaborator(%{name: "Collaborator #{i}", email: "user#{i}@example.com"})
+      end
+
+      query = """
+      query GetCollaborators($pagination: PaginationInput) {
+        collaborators(pagination: $pagination) {
+          data {
+            id
+            name
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            totalCount
+          }
+        }
+      }
+      """
+
+      # Test first page
+      conn =
+        query_graphql(
+          conn,
+          query,
+          %{pagination: %{page: 1, pageSize: 5}},
+          authenticated_context(user)
+        )
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["collaborators"]["data"]) == 5
+      assert result["data"]["collaborators"]["pageInfo"]["hasNextPage"] == true
+      assert result["data"]["collaborators"]["pageInfo"]["hasPreviousPage"] == false
+      assert result["data"]["collaborators"]["pageInfo"]["totalCount"] == 15
+    end
+
+    test "returns second page correctly", %{conn: conn} do
+      user = create_user()
+
+      for i <- 1..15 do
+        create_collaborator(%{name: "Collaborator #{i}", email: "user#{i}@example.com"})
+      end
+
+      query = """
+      query GetCollaborators($pagination: PaginationInput) {
+        collaborators(pagination: $pagination) {
+          data {
+            id
+            name
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(
+          conn,
+          query,
+          %{pagination: %{page: 2, pageSize: 5}},
+          authenticated_context(user)
+        )
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["collaborators"]["data"]) == 5
+      assert result["data"]["collaborators"]["pageInfo"]["hasNextPage"] == true
+      assert result["data"]["collaborators"]["pageInfo"]["hasPreviousPage"] == true
+      assert result["data"]["collaborators"]["pageInfo"]["totalCount"] == 15
+    end
+
+    test "returns last page correctly", %{conn: conn} do
+      user = create_user()
+
+      for i <- 1..15 do
+        create_collaborator(%{name: "Collaborator #{i}", email: "user#{i}@example.com"})
+      end
+
+      query = """
+      query GetCollaborators($pagination: PaginationInput) {
+        collaborators(pagination: $pagination) {
+          data {
+            id
+            name
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(
+          conn,
+          query,
+          %{pagination: %{page: 3, pageSize: 5}},
+          authenticated_context(user)
+        )
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["collaborators"]["data"]) == 5
+      assert result["data"]["collaborators"]["pageInfo"]["hasNextPage"] == false
+      assert result["data"]["collaborators"]["pageInfo"]["hasPreviousPage"] == true
+      assert result["data"]["collaborators"]["pageInfo"]["totalCount"] == 15
+    end
+  end
+
+  describe "collaborators query with filters" do
+    test "filters by name", %{conn: conn} do
+      user = create_user()
+      _collaborator1 = create_collaborator(%{name: "Alice Smith", email: "alice@example.com"})
+      _collaborator2 = create_collaborator(%{name: "Bob Jones", email: "bob@example.com"})
+      _collaborator3 = create_collaborator(%{name: "Alice Johnson", email: "alice.j@example.com"})
+
+      query = """
+      query GetCollaborators($filters: CollaboratorFilters) {
+        collaborators(filters: $filters) {
+          data {
+            id
+            name
+          }
+          pageInfo {
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn = query_graphql(conn, query, %{filters: %{name: "Alice"}}, authenticated_context(user))
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["collaborators"]["data"]) == 2
+      assert result["data"]["collaborators"]["pageInfo"]["totalCount"] == 2
+      names = Enum.map(result["data"]["collaborators"]["data"], & &1["name"])
+      assert "Alice Smith" in names
+      assert "Alice Johnson" in names
+    end
+
+    test "filters by email", %{conn: conn} do
+      user = create_user()
+      _collaborator1 = create_collaborator(%{name: "Alice", email: "alice@company.com"})
+      _collaborator2 = create_collaborator(%{name: "Bob", email: "bob@othercompany.com"})
+      _collaborator3 = create_collaborator(%{name: "Charlie", email: "charlie@company.com"})
+
+      query = """
+      query GetCollaborators($filters: CollaboratorFilters) {
+        collaborators(filters: $filters) {
+          data {
+            id
+            name
+            email
+          }
+          pageInfo {
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(
+          conn,
+          query,
+          %{filters: %{email: "@company.com"}},
+          authenticated_context(user)
+        )
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["collaborators"]["data"]) == 2
+      assert result["data"]["collaborators"]["pageInfo"]["totalCount"] == 2
+      names = Enum.map(result["data"]["collaborators"]["data"], & &1["name"])
+      assert "Alice" in names
+      assert "Charlie" in names
+    end
+
+    test "filters by isActive", %{conn: conn} do
+      user = create_user()
+      _collaborator1 = create_collaborator(%{name: "Active User", is_active: true})
+      _collaborator2 = create_collaborator(%{name: "Inactive User", is_active: false})
+      _collaborator3 = create_collaborator(%{name: "Another Active", is_active: true})
+
+      query = """
+      query GetCollaborators($filters: CollaboratorFilters) {
+        collaborators(filters: $filters) {
+          data {
+            id
+            name
+            isActive
+          }
+          pageInfo {
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(conn, query, %{filters: %{isActive: false}}, authenticated_context(user))
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["collaborators"]["data"]) == 1
+      assert result["data"]["collaborators"]["pageInfo"]["totalCount"] == 1
+      assert hd(result["data"]["collaborators"]["data"])["name"] == "Inactive User"
+      assert hd(result["data"]["collaborators"]["data"])["isActive"] == false
+    end
+
+    test "combines multiple filters", %{conn: conn} do
+      user = create_user()
+
+      _collaborator1 =
+        create_collaborator(%{
+          name: "Alice Smith",
+          email: "alice.smith@company.com",
+          is_active: true
+        })
+
+      _collaborator2 =
+        create_collaborator(%{
+          name: "Alice Jones",
+          email: "alice.jones@company.com",
+          is_active: false
+        })
+
+      _collaborator3 =
+        create_collaborator(%{name: "Bob Smith", email: "bob@company.com", is_active: true})
+
+      query = """
+      query GetCollaborators($filters: CollaboratorFilters) {
+        collaborators(filters: $filters) {
+          data {
+            id
+            name
+            email
+            isActive
+          }
+          pageInfo {
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(
+          conn,
+          query,
+          %{filters: %{name: "Alice", isActive: true}},
+          authenticated_context(user)
+        )
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["collaborators"]["data"]) == 1
+      assert result["data"]["collaborators"]["pageInfo"]["totalCount"] == 1
+      assert hd(result["data"]["collaborators"]["data"])["name"] == "Alice Smith"
+    end
+  end
+
+  describe "collaborators query with pagination and filters combined" do
+    test "paginates filtered results", %{conn: conn} do
+      user = create_user()
+
+      # Create 10 active and 5 inactive collaborators
+      for i <- 1..10 do
+        create_collaborator(%{
+          name: "Active #{i}",
+          email: "active#{i}@example.com",
+          is_active: true
+        })
+      end
+
+      for i <- 1..5 do
+        create_collaborator(%{
+          name: "Inactive #{i}",
+          email: "inactive#{i}@example.com",
+          is_active: false
+        })
+      end
+
+      query = """
+      query GetCollaborators($pagination: PaginationInput, $filters: CollaboratorFilters) {
+        collaborators(pagination: $pagination, filters: $filters) {
+          data {
+            id
+            name
+            isActive
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            totalCount
+          }
+        }
+      }
+      """
+
+      variables = %{
+        pagination: %{page: 1, pageSize: 5},
+        filters: %{isActive: true}
+      }
+
+      conn = query_graphql(conn, query, variables, authenticated_context(user))
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["collaborators"]["data"]) == 5
+      assert result["data"]["collaborators"]["pageInfo"]["hasNextPage"] == true
+      assert result["data"]["collaborators"]["pageInfo"]["hasPreviousPage"] == false
+      assert result["data"]["collaborators"]["pageInfo"]["totalCount"] == 10
+
+      # Verify all returned are active
+      Enum.each(result["data"]["collaborators"]["data"], fn collab ->
+        assert collab["isActive"] == true
+      end)
     end
   end
 

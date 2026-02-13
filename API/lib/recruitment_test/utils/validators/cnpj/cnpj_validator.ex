@@ -18,27 +18,27 @@ defmodule RecruitmentTest.Utils.Validators.Cnpj.CnpjValidator do
   defp handle_response({:ok, %HTTPoison.Response{status_code: 200, body: body}}) do
     case Jason.decode(body) do
       {:ok, data} -> {:ok, parse_response(data)}
-      {:error, _} -> {:error, "Erro ao decodificar resposta da API"}
+      {:error, _} -> {:error, "Error to decode API response"}
     end
   end
 
   defp handle_response({:ok, %HTTPoison.Response{status_code: 404}}) do
-    {:error, "CNPJ não encontrado"}
+    {:error, "CNPJ not found"}
   end
 
   defp handle_response({:ok, %HTTPoison.Response{status_code: status}}) do
-    {:error, "Erro na API: status #{status}"}
+    {:error, "Error in API: status #{status}"}
   end
 
   defp handle_response({:error, %HTTPoison.Error{reason: reason}}) do
-    {:error, "Erro ao consultar CNPJ: #{inspect(reason)}"}
+    {:error, "Error to call API: #{inspect(reason)}"}
   end
 
   defp parse_response(data) do
     %{
       cnpj: data["cnpj"],
       commercial_name: data["razao_social"],
-      name: data["nome_fantasia"]
+      name: data["razao_social"]
     }
   end
 end

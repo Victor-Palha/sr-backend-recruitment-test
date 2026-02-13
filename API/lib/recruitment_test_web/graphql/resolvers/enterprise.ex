@@ -4,6 +4,8 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Enterprise do
   """
 
   alias RecruitmentTest.Contexts.Enterprises.Services
+  alias RecruitmentTestWeb.Graphql.Helpers.PaginationHelper
+  import Ecto.Query
 
   def get_enterprise(_parent, %{id: id}, %{context: %{loader: loader}}) do
     loader
@@ -24,8 +26,11 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Enterprise do
     end
   end
 
-  def list_enterprises(_parent, _args, _resolution) do
-    {:ok, RecruitmentTest.Repo.all(RecruitmentTest.Contexts.Enterprises.Enterprise)}
+  def list_enterprises(_parent, args, _resolution) do
+    RecruitmentTest.Contexts.Enterprises.Enterprise
+    |> PaginationHelper.apply_filters(args[:filters])
+    |> order_by([e], e.name)
+    |> PaginationHelper.paginate(args)
   end
 
   def create_enterprise(_parent, %{input: attrs}, _resolution) do

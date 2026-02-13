@@ -4,6 +4,8 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Task do
   """
 
   alias RecruitmentTest.Contexts.Tasks.Services
+  alias RecruitmentTestWeb.Graphql.Helpers.PaginationHelper
+  import Ecto.Query
 
   def get_task(_parent, %{id: id}, %{context: %{loader: loader}}) do
     loader
@@ -16,8 +18,11 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Task do
     end
   end
 
-  def list_tasks(_parent, _args, _resolution) do
-    {:ok, RecruitmentTest.Repo.all(RecruitmentTest.Contexts.Tasks.Task)}
+  def list_tasks(_parent, args, _resolution) do
+    RecruitmentTest.Contexts.Tasks.Task
+    |> PaginationHelper.apply_filters(args[:filters])
+    |> order_by([t], asc: t.priority, desc: t.inserted_at)
+    |> PaginationHelper.paginate(args)
   end
 
   def create_task(_parent, %{input: attrs}, _resolution) do

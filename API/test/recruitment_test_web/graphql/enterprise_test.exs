@@ -75,9 +75,14 @@ defmodule RecruitmentTestWeb.Graphql.EnterpriseTest do
       query = """
       query {
         enterprises {
-          id
-          name
-          commercialName
+          data {
+            id
+            name
+            commercialName
+          }
+          pageInfo {
+            totalCount
+          }
         }
       }
       """
@@ -85,8 +90,8 @@ defmodule RecruitmentTestWeb.Graphql.EnterpriseTest do
       conn = query_graphql(conn, query, %{}, authenticated_context(user))
       result = json_response(conn, 200)
 
-      assert length(result["data"]["enterprises"]) == 2
-      names = Enum.map(result["data"]["enterprises"], & &1["name"])
+      assert length(result["data"]["enterprises"]["data"]) == 2
+      names = Enum.map(result["data"]["enterprises"]["data"], & &1["name"])
       assert "Enterprise One" in names
       assert "Enterprise Two" in names
     end
@@ -95,8 +100,10 @@ defmodule RecruitmentTestWeb.Graphql.EnterpriseTest do
       query = """
       query {
         enterprises {
-          id
-          name
+          data {
+            id
+            name
+          }
         }
       }
       """
@@ -106,6 +113,119 @@ defmodule RecruitmentTestWeb.Graphql.EnterpriseTest do
 
       assert result["errors"]
       assert hd(result["errors"])["message"] == "Unauthorized - Invalid or missing token"
+    end
+  end
+
+  describe "enterprises query with pagination" do
+    test "returns paginated enterprises", %{conn: conn} do
+      user = create_user()
+
+      for i <- 1..12 do
+        create_enterprise(%{
+          name: "Enterprise #{i}",
+          commercial_name: "Corp #{i}",
+          cnpj: "1234567800#{String.pad_leading("#{i}", 4, "0")}"
+        })
+      end
+
+      query = """
+      query GetEnterprises($pagination: PaginationInput) {
+        enterprises(pagination: $pagination) {
+          data {
+            id
+            name
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(
+          conn,
+          query,
+          %{pagination: %{page: 1, pageSize: 5}},
+          authenticated_context(user)
+        )
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["enterprises"]["data"]) == 5
+      assert result["data"]["enterprises"]["pageInfo"]["hasNextPage"] == true
+      assert result["data"]["enterprises"]["pageInfo"]["hasPreviousPage"] == false
+      assert result["data"]["enterprises"]["pageInfo"]["totalCount"] == 12
+    end
+  end
+
+  describe "enterprises query with filters" do
+    test "filters by name", %{conn: conn} do
+      user = create_user()
+      _enterprise1 = create_enterprise(%{name: "Tech Solutions", commercial_name: "Tech Corp"})
+      _enterprise2 = create_enterprise(%{name: "Business Corp", commercial_name: "Business Inc"})
+      _enterprise3 = create_enterprise(%{name: "Tech Industries", commercial_name: "Tech Ind"})
+
+      query = """
+      query GetEnterprises($filters: EnterpriseFilters) {
+        enterprises(filters: $filters) {
+          data {
+            id
+            name
+          }
+          pageInfo {
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn = query_graphql(conn, query, %{filters: %{name: "Tech"}}, authenticated_context(user))
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["enterprises"]["data"]) == 2
+      assert result["data"]["enterprises"]["pageInfo"]["totalCount"] == 2
+      names = Enum.map(result["data"]["enterprises"]["data"], & &1["name"])
+      assert "Tech Solutions" in names
+      assert "Tech Industries" in names
+    end
+
+    test "filters by cnpj", %{conn: conn} do
+      user = create_user()
+
+      _enterprise1 =
+        create_enterprise(%{name: "Company A", commercial_name: "A Inc", cnpj: "12345678000190"})
+
+      _enterprise2 =
+        create_enterprise(%{name: "Company B", commercial_name: "B Inc", cnpj: "98765432000100"})
+
+      _enterprise3 =
+        create_enterprise(%{name: "Company C", commercial_name: "C Inc", cnpj: "12345678000200"})
+
+      query = """
+      query GetEnterprises($filters: EnterpriseFilters) {
+        enterprises(filters: $filters) {
+          data {
+            id
+            name
+            cnpj
+          }
+          pageInfo {
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(conn, query, %{filters: %{cnpj: "123456"}}, authenticated_context(user))
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["enterprises"]["data"]) == 2
+      assert result["data"]["enterprises"]["pageInfo"]["totalCount"] == 2
     end
   end
 
@@ -126,8 +246,6 @@ defmodule RecruitmentTestWeb.Graphql.EnterpriseTest do
       """
 
       input = %{
-        name: "New Enterprise Ltd",
-        commercialName: "New Enterprise",
         cnpj: "12345678000190",
         description: "A new enterprise"
       }
@@ -153,8 +271,6 @@ defmodule RecruitmentTestWeb.Graphql.EnterpriseTest do
       """
 
       input = %{
-        name: "New Enterprise Ltd",
-        commercialName: "New Enterprise",
         cnpj: "12345678000190"
       }
 
@@ -176,8 +292,6 @@ defmodule RecruitmentTestWeb.Graphql.EnterpriseTest do
       """
 
       input = %{
-        name: "New Enterprise Ltd",
-        commercialName: "New Enterprise",
         cnpj: "12345678000190"
       }
 

@@ -3,6 +3,9 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Report do
   Resolver module for report queries.
   """
 
+  alias RecruitmentTestWeb.Graphql.Helpers.PaginationHelper
+  import Ecto.Query
+
   def get_report(_parent, %{id: id}, %{context: %{loader: loader}}) do
     loader
     |> Dataloader.load(
@@ -22,7 +25,10 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Report do
     end
   end
 
-  def list_reports(_parent, _args, _resolution) do
-    {:ok, RecruitmentTest.Repo.all(RecruitmentTest.Contexts.Reports.Report)}
+  def list_reports(_parent, args, _resolution) do
+    RecruitmentTest.Contexts.Reports.Report
+    |> PaginationHelper.apply_filters(args[:filters])
+    |> order_by([r], desc: r.inserted_at)
+    |> PaginationHelper.paginate(args)
   end
 end

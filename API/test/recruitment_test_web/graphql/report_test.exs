@@ -80,9 +80,14 @@ defmodule RecruitmentTestWeb.Graphql.ReportTest do
       query = """
       query {
         reports {
-          id
-          taskName
-          collaboratorName
+          data {
+            id
+            taskName
+            collaboratorName
+          }
+          pageInfo {
+            totalCount
+          }
         }
       }
       """
@@ -90,8 +95,8 @@ defmodule RecruitmentTestWeb.Graphql.ReportTest do
       conn = query_graphql(conn, query, %{}, authenticated_context(user))
       result = json_response(conn, 200)
 
-      assert length(result["data"]["reports"]) == 2
-      task_names = Enum.map(result["data"]["reports"], & &1["taskName"])
+      assert length(result["data"]["reports"]["data"]) == 2
+      task_names = Enum.map(result["data"]["reports"]["data"], & &1["taskName"])
       assert "Task One" in task_names
       assert "Task Two" in task_names
     end
@@ -100,8 +105,10 @@ defmodule RecruitmentTestWeb.Graphql.ReportTest do
       query = """
       query {
         reports {
-          id
-          taskName
+          data {
+            id
+            taskName
+          }
         }
       }
       """
@@ -111,6 +118,48 @@ defmodule RecruitmentTestWeb.Graphql.ReportTest do
 
       assert result["errors"]
       assert hd(result["errors"])["message"] == "Unauthorized - Invalid or missing token"
+    end
+  end
+
+  describe "reports query with pagination" do
+    test "returns paginated reports", %{conn: conn} do
+      user = create_user()
+      collaborator = create_collaborator()
+
+      for i <- 1..8 do
+        task = create_task(%{collaborator: collaborator, name: "Task #{i}"})
+        create_report(%{collaborator: collaborator, task: task})
+      end
+
+      query = """
+      query GetReports($pagination: PaginationInput) {
+        reports(pagination: $pagination) {
+          data {
+            id
+            taskName
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            totalCount
+          }
+        }
+      }
+      """
+
+      conn =
+        query_graphql(
+          conn,
+          query,
+          %{pagination: %{page: 1, pageSize: 5}},
+          authenticated_context(user)
+        )
+
+      result = json_response(conn, 200)
+
+      assert length(result["data"]["reports"]["data"]) == 5
+      assert result["data"]["reports"]["pageInfo"]["hasNextPage"] == true
+      assert result["data"]["reports"]["pageInfo"]["totalCount"] == 8
     end
   end
 

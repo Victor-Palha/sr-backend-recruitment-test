@@ -4,6 +4,8 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Contract do
   """
 
   alias RecruitmentTest.Contexts.Contracts.Services
+  alias RecruitmentTestWeb.Graphql.Helpers.PaginationHelper
+  import Ecto.Query
 
   def get_contract(_parent, %{id: id}, %{context: %{loader: loader}}) do
     loader
@@ -24,8 +26,11 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Contract do
     end
   end
 
-  def list_contracts(_parent, _args, _resolution) do
-    {:ok, RecruitmentTest.Repo.all(RecruitmentTest.Contexts.Contracts.Contract)}
+  def list_contracts(_parent, args, _resolution) do
+    RecruitmentTest.Contexts.Contracts.Contract
+    |> PaginationHelper.apply_filters(args[:filters])
+    |> order_by([c], desc: c.inserted_at)
+    |> PaginationHelper.paginate(args)
   end
 
   def list_contracts_by_enterprise(_parent, %{enterprise_id: enterprise_id}, _resolution) do
