@@ -26,6 +26,5 @@ defmodule RecruitmentTestWeb.Endpoint do
     allow_headers: :all,
     expose_headers: ["Set-Cookie"]
 
-  plug Absinthe.Plug,
-    schema: RecruitmentTestWeb.Schema
+  plug RecruitmentTestWeb.Router
 end

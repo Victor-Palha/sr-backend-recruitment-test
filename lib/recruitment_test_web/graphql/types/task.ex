@@ -1,0 +1,45 @@
+defmodule RecruitmentTestWeb.Graphql.Types.Task do
+  use Absinthe.Schema.Notation
+
+  @desc "Task status enum"
+  enum :task_status do
+    value :pending, description: "Task is pending"
+    value :in_progress, description: "Task is in progress"
+    value :completed, description: "Task is completed"
+    value :failed, description: "Task has failed"
+  end
+
+  @desc "A task assigned to a collaborator"
+  object :task do
+    field :id, non_null(:id), description: "The unique identifier of the task"
+    field :name, non_null(:string), description: "The name of the task"
+    field :description, :string, description: "A detailed description of the task"
+    field :status, non_null(:task_status), description: "The current status of the task"
+    field :priority, non_null(:integer), description: "The priority level of the task"
+
+    field :collaborator, non_null(:collaborator),
+      description: "The collaborator assigned to this task"
+
+    field :report, :report, description: "The report associated with this task, if completed"
+
+    field :inserted_at, non_null(:datetime), description: "When the task was created"
+    field :updated_at, non_null(:datetime), description: "When the task was last updated"
+  end
+
+  @desc "Input type for creating a new task"
+  input_object :create_task_input do
+    field :name, non_null(:string), description: "The name of the task"
+    field :description, :string, description: "A detailed description of the task"
+    field :collaborator_id, non_null(:id), description: "The ID of the collaborator"
+    field :status, :task_status, description: "The status of the task"
+    field :priority, :integer, description: "The priority level of the task"
+  end
+
+  @desc "Input type for updating an existing task"
+  input_object :update_task_input do
+    field :name, :string, description: "The name of the task"
+    field :description, :string, description: "A detailed description of the task"
+    field :status, :task_status, description: "The status of the task"
+    field :priority, :integer, description: "The priority level of the task"
+  end
+end
