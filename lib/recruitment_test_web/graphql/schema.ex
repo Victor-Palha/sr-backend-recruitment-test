@@ -27,11 +27,6 @@ defmodule RecruitmentTestWeb.Schema do
   end
 
   query do
-    @desc "A simple health check endpoint"
-    field :health_check, :string do
-      resolve fn _, _ -> {:ok, "OK"} end
-    end
-
     @desc "Get a collaborator by ID"
     field :collaborator, :collaborator do
       arg :id, non_null(:id)

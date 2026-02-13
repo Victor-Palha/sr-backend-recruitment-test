@@ -1,5 +1,6 @@
 defmodule RecruitmentTestWeb.Graphql.Types.Enterprise do
   use Absinthe.Schema.Notation
+  import Absinthe.Resolution.Helpers
 
   @desc "An enterprise with its contracts"
   object :enterprise do
@@ -16,7 +17,7 @@ defmodule RecruitmentTestWeb.Graphql.Types.Enterprise do
 
     @desc "All contracts associated with this enterprise, resolved using Dataloader for efficient batching"
     field :contracts, list_of(:contract) do
-      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+      resolve dataloader(RecruitmentTest.Contexts.Content, :contracts, [])
     end
 
     field :inserted_at, non_null(:datetime), description: "When the enterprise was created"

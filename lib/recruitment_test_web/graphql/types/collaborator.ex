@@ -1,5 +1,6 @@
 defmodule RecruitmentTestWeb.Graphql.Types.Collaborator do
   use Absinthe.Schema.Notation
+  import Absinthe.Resolution.Helpers
 
   @desc "A collaborator with their contracts, tasks, and reports"
   object :collaborator do
@@ -14,18 +15,18 @@ defmodule RecruitmentTestWeb.Graphql.Types.Collaborator do
 
     @desc "All contracts associated with this collaborator, resolved using Dataloader for efficient batching"
     field :contracts, list_of(:contract) do
-      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+      resolve dataloader(RecruitmentTest.Contexts.Content, :contracts, [])
     end
 
     # field :tasks, list_of(:task), description: "All tasks assigned to this collaborator"
     @desc "All tasks assigned to this collaborator, resolved using Dataloader for efficient batching"
     field :tasks, list_of(:task) do
-      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+      resolve dataloader(RecruitmentTest.Contexts.Content, :tasks, [])
     end
 
     @desc "All reports created by this collaborator, resolved using Dataloader for efficient batching"
     field :reports, list_of(:report) do
-      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+      resolve dataloader(RecruitmentTest.Contexts.Content, :reports, [])
     end
 
     field :inserted_at, non_null(:datetime), description: "When the collaborator was created"

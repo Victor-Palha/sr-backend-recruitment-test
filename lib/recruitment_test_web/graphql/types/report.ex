@@ -1,5 +1,6 @@
 defmodule RecruitmentTestWeb.Graphql.Types.Report do
   use Absinthe.Schema.Notation
+  import Absinthe.Resolution.Helpers
 
   @desc "A report for a completed task"
   object :report do
@@ -16,10 +17,13 @@ defmodule RecruitmentTestWeb.Graphql.Types.Report do
 
     @desc "The collaborator who completed the task, resolved using Dataloader for efficient batching"
     field :collaborator, non_null(:collaborator) do
-      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+      resolve dataloader(RecruitmentTest.Contexts.Content, :collaborator, [])
     end
 
-    field :task, non_null(:task), description: "The task that was completed"
+    @desc "The task that was completed, resolved using Dataloader for efficient batching"
+    field :task, non_null(:task) do
+      resolve dataloader(RecruitmentTest.Contexts.Content, :task, [])
+    end
 
     field :inserted_at, non_null(:datetime), description: "When the report was created"
   end

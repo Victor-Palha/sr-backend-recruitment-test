@@ -1,11 +1,12 @@
 defmodule RecruitmentTestWeb.Graphql.Types.Contract do
   use Absinthe.Schema.Notation
+  import Absinthe.Resolution.Helpers
 
   @desc "Contract status enum"
   enum :contract_status do
-    value :active, description: "Active contract"
-    value :expired, description: "Expired contract"
-    value :cancelled, description: "Cancelled contract"
+    value :active, as: "active", description: "Active contract"
+    value :expired, as: "expired", description: "Expired contract"
+    value :cancelled, as: "cancelled", description: "Cancelled contract"
   end
 
   @desc "A contract between an enterprise and a collaborator"
@@ -19,12 +20,12 @@ defmodule RecruitmentTestWeb.Graphql.Types.Contract do
 
     @desc "The enterprise associated with this contract, resolved using Dataloader for efficient batching"
     field :enterprise, non_null(:enterprise) do
-      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+      resolve dataloader(RecruitmentTest.Contexts.Content, :enterprise, [])
     end
 
     @desc "The collaborator associated with this contract, resolved using Dataloader for efficient batching"
     field :collaborator, non_null(:collaborator) do
-      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+      resolve dataloader(RecruitmentTest.Contexts.Content, :collaborator, [])
     end
 
     field :inserted_at, non_null(:datetime), description: "When the contract was created"

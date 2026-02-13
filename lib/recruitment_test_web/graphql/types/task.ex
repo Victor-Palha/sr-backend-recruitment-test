@@ -1,12 +1,13 @@
 defmodule RecruitmentTestWeb.Graphql.Types.Task do
   use Absinthe.Schema.Notation
+  import Absinthe.Resolution.Helpers
 
   @desc "Task status enum"
   enum :task_status do
-    value :pending, description: "Task is pending"
-    value :in_progress, description: "Task is in progress"
-    value :completed, description: "Task is completed"
-    value :failed, description: "Task has failed"
+    value :pending, as: "pending", description: "Task is pending"
+    value :in_progress, as: "in_progress", description: "Task is in progress"
+    value :completed, as: "completed", description: "Task is completed"
+    value :failed, as: "failed", description: "Task has failed"
   end
 
   @desc "A task assigned to a collaborator"
@@ -19,12 +20,12 @@ defmodule RecruitmentTestWeb.Graphql.Types.Task do
 
     @desc "The collaborator assigned to this task, resolved using Dataloader for efficient batching"
     field :collaborator, non_null(:collaborator) do
-      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+      resolve dataloader(RecruitmentTest.Contexts.Content, :collaborator, [])
     end
 
     @desc "The report associated with this task, if completed, resolved using Dataloader for efficient batching"
     field :report, :report do
-      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+      resolve dataloader(RecruitmentTest.Contexts.Content, :report, [])
     end
 
     field :inserted_at, non_null(:datetime), description: "When the task was created"
