@@ -120,7 +120,6 @@ defmodule RecruitmentTestWeb.Graphql.CollaboratorTest do
           name
           email
           cpf
-          isActive
         }
       }
       """
@@ -128,8 +127,7 @@ defmodule RecruitmentTestWeb.Graphql.CollaboratorTest do
       input = %{
         name: "New Collaborator",
         email: "new@example.com",
-        cpf: "12345678901",
-        isActive: true
+        cpf: "12345678901"
       }
 
       conn = query_graphql(conn, mutation, %{input: input}, authenticated_context(admin))
@@ -137,6 +135,7 @@ defmodule RecruitmentTestWeb.Graphql.CollaboratorTest do
 
       assert result["data"]["createCollaborator"]["name"] == "New Collaborator"
       assert result["data"]["createCollaborator"]["email"] == "new@example.com"
+      assert result["data"]["createCollaborator"]["cpf"] == "12345678901"
     end
 
     test "returns error when user is not admin", %{conn: conn} do
@@ -154,8 +153,7 @@ defmodule RecruitmentTestWeb.Graphql.CollaboratorTest do
       input = %{
         name: "New Collaborator",
         email: "new@example.com",
-        cpf: "12345678901",
-        isActive: true
+        cpf: "12345678901"
       }
 
       conn = query_graphql(conn, mutation, %{input: input}, authenticated_context(user))
@@ -178,8 +176,7 @@ defmodule RecruitmentTestWeb.Graphql.CollaboratorTest do
       input = %{
         name: "New Collaborator",
         email: "new@example.com",
-        cpf: "12345678901",
-        isActive: true
+        cpf: "12345678901"
       }
 
       conn = query_graphql(conn, mutation, %{input: input}, %{})

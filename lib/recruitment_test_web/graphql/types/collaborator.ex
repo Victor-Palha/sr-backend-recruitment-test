@@ -40,8 +40,6 @@ defmodule RecruitmentTestWeb.Graphql.Types.Collaborator do
 
     field :cpf, non_null(:string),
       description: "The CPF (Brazilian ID number) of the collaborator"
-
-    field :is_active, non_null(:boolean), description: "Whether the collaborator is active"
   end
 
   @desc "Input type for updating an existing collaborator"
