@@ -10,9 +10,15 @@ defmodule RecruitmentTestWeb.Schema do
   import_types RecruitmentTestWeb.Graphql.Types.Report
 
   query do
-    @desc "A simple health check test endpoint"
+    @desc "A simple health check endpoint"
     field :health_check, :string do
       resolve fn _, _ -> {:ok, "OK"} end
+    end
+  end
+
+  mutation do
+    field :placeholder, :string do
+      resolve fn _, _ -> {:ok, "placeholder"} end
     end
   end
 end

@@ -47,7 +47,9 @@ defmodule RecruitmentTest.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:corsica, "~> 1.0"},
-      {:httpoison, "~> 2.3"}
+      {:httpoison, "~> 2.3"},
+      {:guardian, "~> 2.3"},
+      {:bcrypt_elixir, "~> 3.0"}
     ]
   end
 

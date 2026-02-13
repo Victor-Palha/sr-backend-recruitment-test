@@ -39,6 +39,11 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+# Guardian configuration
+config :recruitment_test, RecruitmentTest.Guardian,
+  issuer: "recruitment_test",
+  secret_key: "your_secret_key_here_change_in_production"
+
 # Api client configuration
 config :recruitment_test, :cnpj_validator, RecruitmentTest.Utils.Validators.Cnpj.CnpjMockValidator
 

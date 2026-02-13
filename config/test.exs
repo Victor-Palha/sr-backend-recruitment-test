@@ -30,6 +30,8 @@ config :swoosh, :api_client, false
 # Print only warnings and errors during test
 config :logger, level: :warning
 
+config :bcrypt_elixir, log_rounds: 4
+
 # Api client configuration
 config :recruitment_test, :cnpj_validator, RecruitmentTest.Utils.Validators.Cnpj.CnpjMockValidator
 
