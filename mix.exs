@@ -35,6 +35,7 @@ defmodule RecruitmentTest.MixProject do
       {:absinthe, "~> 1.7", override: true},
       {:absinthe_plug, "~> 1.5"},
       {:phoenix, "~> 1.7.18"},
+      {:phoenix_live_dashboard, "~> 0.8.3"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},

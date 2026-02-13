@@ -14,8 +14,10 @@ defmodule RecruitmentTestWeb.Graphql.Types.Enterprise do
 
     field :description, :string, description: "A description of the enterprise"
 
-    field :contracts, list_of(:contract),
-      description: "All contracts associated with this enterprise"
+    @desc "All contracts associated with this enterprise, resolved using Dataloader for efficient batching"
+    field :contracts, list_of(:contract) do
+      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+    end
 
     field :inserted_at, non_null(:datetime), description: "When the enterprise was created"
     field :updated_at, non_null(:datetime), description: "When the enterprise was last updated"
@@ -39,5 +41,11 @@ defmodule RecruitmentTestWeb.Graphql.Types.Enterprise do
     field :name, :string, description: "The legal name of the enterprise"
     field :commercial_name, :string, description: "The commercial/trade name of the enterprise"
     field :description, :string, description: "A description of the enterprise"
+  end
+
+  @desc "Response type for delete enterprise mutation"
+  object :delete_enterprise_response do
+    field :success, non_null(:boolean), description: "Whether the deletion was successful"
+    field :enterprise, :enterprise, description: "The deleted enterprise"
   end
 end

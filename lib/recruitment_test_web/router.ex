@@ -40,4 +40,15 @@ defmodule RecruitmentTestWeb.Router do
       schema: RecruitmentTestWeb.Schema,
       interface: :playground
   end
+
+  if Application.compile_env(:recruitment_test, :dev_routes) do
+    import Phoenix.LiveDashboard.Router
+
+    scope "/dev" do
+      pipe_through [:fetch_session, :protect_from_forgery]
+
+      live_dashboard "/dashboard", metrics: RecruitmentTestWeb.Telemetry
+      forward "/mailbox", Plug.Swoosh.MailboxPreview
+    end
+  end
 end

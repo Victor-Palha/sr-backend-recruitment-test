@@ -14,8 +14,10 @@ defmodule RecruitmentTestWeb.Graphql.Types.Report do
 
     field :completed_at, non_null(:datetime), description: "When the task was completed"
 
-    field :collaborator, non_null(:collaborator),
-      description: "The collaborator who completed the task"
+    @desc "The collaborator who completed the task, resolved using Dataloader for efficient batching"
+    field :collaborator, non_null(:collaborator) do
+      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+    end
 
     field :task, non_null(:task), description: "The task that was completed"
 

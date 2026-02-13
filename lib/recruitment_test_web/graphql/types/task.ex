@@ -17,10 +17,15 @@ defmodule RecruitmentTestWeb.Graphql.Types.Task do
     field :status, non_null(:task_status), description: "The current status of the task"
     field :priority, non_null(:integer), description: "The priority level of the task"
 
-    field :collaborator, non_null(:collaborator),
-      description: "The collaborator assigned to this task"
+    @desc "The collaborator assigned to this task, resolved using Dataloader for efficient batching"
+    field :collaborator, non_null(:collaborator) do
+      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+    end
 
-    field :report, :report, description: "The report associated with this task, if completed"
+    @desc "The report associated with this task, if completed, resolved using Dataloader for efficient batching"
+    field :report, :report do
+      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+    end
 
     field :inserted_at, non_null(:datetime), description: "When the task was created"
     field :updated_at, non_null(:datetime), description: "When the task was last updated"

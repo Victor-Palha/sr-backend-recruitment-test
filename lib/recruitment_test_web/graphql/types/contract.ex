@@ -17,11 +17,15 @@ defmodule RecruitmentTestWeb.Graphql.Types.Contract do
 
     field :status, non_null(:contract_status), description: "The current status of the contract"
 
-    field :enterprise, non_null(:enterprise),
-      description: "The enterprise associated with this contract"
+    @desc "The enterprise associated with this contract, resolved using Dataloader for efficient batching"
+    field :enterprise, non_null(:enterprise) do
+      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+    end
 
-    field :collaborator, non_null(:collaborator),
-      description: "The collaborator associated with this contract"
+    @desc "The collaborator associated with this contract, resolved using Dataloader for efficient batching"
+    field :collaborator, non_null(:collaborator) do
+      resolve(Absinthe.Resolution.Helpers.dataloader(RecruitmentTest.Contexts.Content))
+    end
 
     field :inserted_at, non_null(:datetime), description: "When the contract was created"
     field :updated_at, non_null(:datetime), description: "When the contract was last updated"
@@ -43,5 +47,11 @@ defmodule RecruitmentTestWeb.Graphql.Types.Contract do
     field :starts_at, :datetime, description: "When the contract starts"
     field :expires_at, :datetime, description: "When the contract expires"
     field :status, :contract_status, description: "The status of the contract"
+  end
+
+  @desc "Response type for delete contract mutation"
+  object :delete_contract_response do
+    field :success, non_null(:boolean), description: "Whether the deletion was successful"
+    field :contract, :contract, description: "The deleted contract"
   end
 end
