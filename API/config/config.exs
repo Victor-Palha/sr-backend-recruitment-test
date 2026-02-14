@@ -7,6 +7,19 @@
 # General application configuration
 import Config
 
+config :recruitment_test, Oban,
+  engine: Oban.Engines.Basic,
+  notifier: Oban.Notifiers.Postgres,
+  queues: [default: 10, email: 10, reports: 10],
+  repo: RecruitmentTest.Repo,
+  plugins: [
+    Oban.Plugins.Pruner,
+    {Oban.Plugins.Cron,
+     crontab: [
+       {"0 20 * * *", RecruitmentTest.Jobs.DailyReportSummary}
+     ]}
+  ]
+
 config :recruitment_test,
   ecto_repos: [RecruitmentTest.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]
@@ -32,7 +45,9 @@ config :recruitment_test, RecruitmentTestWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :recruitment_test, RecruitmentTest.Mailer, adapter: Swoosh.Adapters.Local
+
+# Configuração global do Swoosh
+config :swoosh, :api_client, Swoosh.ApiClient.Finch
 
 # Configures Elixir's Logger
 config :logger, :console,

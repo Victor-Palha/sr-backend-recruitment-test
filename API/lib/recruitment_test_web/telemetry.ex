@@ -78,7 +78,42 @@ defmodule RecruitmentTestWeb.Telemetry do
       summary("vm.memory.total", unit: {:byte, :kilobyte}),
       summary("vm.total_run_queue_lengths.total"),
       summary("vm.total_run_queue_lengths.cpu"),
-      summary("vm.total_run_queue_lengths.io")
+      summary("vm.total_run_queue_lengths.io"),
+
+      # Oban Metrics
+      summary("oban.job.start.system_time",
+        tags: [:worker, :queue],
+        unit: {:native, :millisecond},
+        description: "The system time when the job started executing"
+      ),
+      summary("oban.job.stop.duration",
+        tags: [:worker, :queue],
+        unit: {:native, :millisecond},
+        description: "The time spent executing the job"
+      ),
+      summary("oban.job.exception.duration",
+        tags: [:worker, :queue],
+        unit: {:native, :millisecond},
+        description: "The time spent before the job raised an exception"
+      ),
+      counter("oban.job.stop.duration",
+        tags: [:worker, :queue],
+        description: "The total number of jobs completed"
+      ),
+      counter("oban.job.exception.duration",
+        tags: [:worker, :queue],
+        description: "The total number of jobs that raised an exception"
+      ),
+      summary("oban.engine.insert_job.stop.duration",
+        tags: [:queue],
+        unit: {:native, :millisecond},
+        description: "The time spent inserting a job"
+      ),
+      summary("oban.plugin.stop.duration",
+        tags: [:plugin],
+        unit: {:native, :millisecond},
+        description: "The time spent executing an Oban plugin"
+      )
     ]
   end
 

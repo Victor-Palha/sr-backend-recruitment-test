@@ -66,5 +66,7 @@ config :phoenix, :plug_init_mode, :runtime
 # Api client configuration
 config :recruitment_test, :cnpj_validator, RecruitmentTest.Utils.Validators.Cnpj.CnpjValidator
 
+# Usar adapter local para desenvolvimento
+config :recruitment_test, RecruitmentTest.Mailer, adapter: Swoosh.Adapters.Local
 # Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false

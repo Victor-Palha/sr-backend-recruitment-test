@@ -1,4 +1,5 @@
 import Config
+config :recruitment_test, Oban, testing: :manual
 
 # Configure your database
 #

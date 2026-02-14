@@ -106,3 +106,9 @@ variable "secret_key_base" {
   type        = string
   sensitive   = true
 }
+
+variable "resend_api_key" {
+  description = "Resend API key"
+  type        = string
+  sensitive   = true
+}

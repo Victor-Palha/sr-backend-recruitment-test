@@ -53,6 +53,12 @@ variable "secret_key_base" {
   sensitive   = true
 }
 
+variable "resend_api_key" {
+  description = "Resend API key"
+  type        = string
+  sensitive   = true
+}
+
 variable "app_port" {
   description = "Application port"
   type        = number
