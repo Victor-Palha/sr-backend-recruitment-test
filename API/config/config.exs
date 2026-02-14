@@ -9,7 +9,10 @@ import Config
 
 config :recruitment_test,
   ecto_repos: [RecruitmentTest.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime, binary_id: true]
+
+config :recruitment_test, RecruitmentTest.Repo,
+  migration_primary_key: [name: :id, type: :binary_id]
 
 # Configures the endpoint
 config :recruitment_test, RecruitmentTestWeb.Endpoint,

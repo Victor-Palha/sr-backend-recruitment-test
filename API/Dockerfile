@@ -37,6 +37,10 @@ ENV MIX_ENV="prod"
 # Receba os argumentos de build
 ARG GUARDIAN_ISSUER
 ARG GUARDIAN_SECRET_KEY
+ARG DATABASE_HOST
+ARG DATABASE_USER
+ARG DATABASE_PASSWORD
+ARG DATABASE_DB
 ARG DATABASE_URL
 ARG SECRET_KEY_BASE
 
@@ -44,7 +48,11 @@ ARG SECRET_KEY_BASE
 ENV GUARDIAN_ISSUER=${GUARDIAN_ISSUER} \
     GUARDIAN_SECRET_KEY=${GUARDIAN_SECRET_KEY} \
     DATABASE_URL=${DATABASE_URL} \
-    SECRET_KEY_BASE=${SECRET_KEY_BASE}
+    SECRET_KEY_BASE=${SECRET_KEY_BASE} \
+    DATABASE_HOST=${DATABASE_HOST} \
+    DATABASE_USER=${DATABASE_USER} \
+    DATABASE_PASSWORD=${DATABASE_PASSWORD} \
+    DATABASE_DB=${DATABASE_DB}
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -99,20 +107,28 @@ ARG GUARDIAN_ISSUER
 ARG GUARDIAN_SECRET_KEY
 ARG DATABASE_URL
 ARG SECRET_KEY_BASE
+ARG DATABASE_HOST
+ARG DATABASE_USER
+ARG DATABASE_PASSWORD
+ARG DATABASE_DB
 
 # Configure as variáveis de ambiente para runtime
 ENV GUARDIAN_ISSUER=${GUARDIAN_ISSUER} \
     GUARDIAN_SECRET_KEY=${GUARDIAN_SECRET_KEY} \
     DATABASE_URL=${DATABASE_URL} \
-    SECRET_KEY_BASE=${SECRET_KEY_BASE}
+    SECRET_KEY_BASE=${SECRET_KEY_BASE} \
+    DATABASE_HOST=${DATABASE_HOST} \
+    DATABASE_USER=${DATABASE_USER} \
+    DATABASE_PASSWORD=${DATABASE_PASSWORD} \
+    DATABASE_DB=${DATABASE_DB}
 
 # Only copy the final release from the build stage
 COPY --from=builder --chown=nobody:root /app/_build/prod/rel/recruitment_test ./
 
+COPY --chown=nobody:root entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 USER nobody
 
-# If using an environment that doesn't automatically reap zombie processes, it is
-# advised to add an init process such as tini via `apt-get install`
-# above and adding an entrypoint. See https://github.com/krallin/tini for details
-# ENTRYPOINT ["/tini", "--"]
-CMD ["/app/bin/recruitment_test", "start"]
+# Run migrations then start the application
+ENTRYPOINT ["/app/entrypoint.sh"]
