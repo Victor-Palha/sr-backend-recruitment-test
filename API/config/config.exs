@@ -45,7 +45,9 @@ config :recruitment_test, RecruitmentTestWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :recruitment_test, RecruitmentTest.Mailer, adapter: Swoosh.Adapters.Local
+
+# Configuração global do Swoosh
+config :swoosh, :api_client, Swoosh.ApiClient.Finch
 
 # Configures Elixir's Logger
 config :logger, :console,

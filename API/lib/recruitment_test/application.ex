@@ -14,7 +14,7 @@ defmodule RecruitmentTest.Application do
       {Oban, Application.fetch_env!(:recruitment_test, Oban)},
       {Phoenix.PubSub, name: RecruitmentTest.PubSub},
       # Start the Finch HTTP client for sending emails
-      {Finch, name: RecruitmentTest.Finch},
+      {Finch, name: Swoosh.Finch},
       # Start a worker by calling: RecruitmentTest.Worker.start_link(arg)
       # {RecruitmentTest.Worker, arg},
       # Start to serve requests, typically the last entry

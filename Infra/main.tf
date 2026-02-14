@@ -87,4 +87,5 @@ module "ecs" {
   guardian_issuer       = var.guardian_issuer
   guardian_secret_key   = var.guardian_secret_key
   secret_key_base       = var.secret_key_base
+  resend_api_key        = var.resend_api_key
 }

@@ -42,7 +42,8 @@ resource "aws_ecs_task_definition" "app" {
         { name = "GUARDIAN_ISSUER", value = var.guardian_issuer },
         { name = "GUARDIAN_SECRET_KEY", value = var.guardian_secret_key },
         { name = "PORT", value = tostring(var.app_port) },
-        { name = "SECRET_KEY_BASE", value = var.secret_key_base }
+        { name = "SECRET_KEY_BASE", value = var.secret_key_base },
+        { name = "RESEND_API_KEY", value = var.resend_api_key }
       ]
 
       logConfiguration = {

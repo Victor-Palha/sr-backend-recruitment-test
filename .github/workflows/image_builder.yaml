@@ -59,3 +59,4 @@ jobs:
                       GUARDIAN_SECRET_KEY=${{ secrets.GUARDIAN_SECRET_KEY }}
                       DATABASE_URL=${{ secrets.DATABASE_URL }}
                       SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }}
+                      RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
