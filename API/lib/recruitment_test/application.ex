@@ -11,6 +11,7 @@ defmodule RecruitmentTest.Application do
       RecruitmentTestWeb.Telemetry,
       RecruitmentTest.Repo,
       {DNSCluster, query: Application.get_env(:recruitment_test, :dns_cluster_query) || :ignore},
+      {Oban, Application.fetch_env!(:recruitment_test, Oban)},
       {Phoenix.PubSub, name: RecruitmentTest.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: RecruitmentTest.Finch},

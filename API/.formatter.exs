@@ -1,5 +1,5 @@
 [
-  import_deps: [:ecto, :ecto_sql, :phoenix, :absinthe],
+  import_deps: [:oban, :ecto, :ecto_sql, :phoenix, :absinthe],
   plugins: [Absinthe.Formatter],
   subdirectories: ["priv/*/migrations"],
   inputs: [

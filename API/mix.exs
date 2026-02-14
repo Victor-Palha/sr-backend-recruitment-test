@@ -51,7 +51,9 @@ defmodule RecruitmentTest.MixProject do
       {:httpoison, "~> 2.3"},
       {:guardian, "~> 2.3"},
       {:bcrypt_elixir, "~> 3.0"},
-      {:dataloader, "~> 1.0.11"}
+      {:dataloader, "~> 1.0.11"},
+      {:oban, "~> 2.19"},
+      {:igniter, "~> 0.5", only: [:dev]}
     ]
   end
 

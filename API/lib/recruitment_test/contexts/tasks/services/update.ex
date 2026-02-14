@@ -18,6 +18,7 @@ defmodule RecruitmentTest.Contexts.Tasks.Services.Update do
   def call(id, attrs) when is_uuid(id) do
     with {:ok, task} <- does_task_exist(id),
          {:ok, updated_task} <- update_task(task, attrs) do
+      generate_report_if_completed(updated_task)
       {:ok, updated_task}
     end
   end
@@ -40,4 +41,16 @@ defmodule RecruitmentTest.Contexts.Tasks.Services.Update do
       {:error, changeset} -> {:error, changeset}
     end
   end
+
+  def generate_report_if_completed(task) do
+    if was_task_completed?(task) do
+      task
+      |> Map.take([:id])
+      |> Oban.Job.new(queue: :reports, worker: RecruitmentTest.Jobs.GenerateReport)
+      |> Oban.insert()
+    end
+  end
+
+  defp was_task_completed?(%Task{status: "completed"}), do: true
+  defp was_task_completed?(_), do: false
 end
