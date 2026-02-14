@@ -1,0 +1,3 @@
+db_password         = "CHANGE_ME_strong_password_123!"
+guardian_secret_key  = "CHANGE_ME_guardian_secret"
+secret_key_base      = "CHANGE_ME_phoenix_secret_key_base_at_least_64_chars_long_xxxxxxxxxxxxxxxxxx"

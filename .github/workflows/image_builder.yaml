@@ -50,8 +50,6 @@ jobs:
                   push: true
                   tags: |
                       ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.version.outputs.version }}
-                      ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.version.outputs.sha_short }}
-                      ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
                   build-args: |
