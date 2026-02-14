@@ -12,6 +12,22 @@ services:
       - POSTGRES_PASSWORD=db_password
     volumes:
       - pgdata:/var/lib/postgresql/data
+  api:
+    build:
+      context: ./API
+      dockerfile: Dockerfile
+      args:
+        GUARDIAN_ISSUER: "${GUARDIAN_ISSUER}"
+        GUARDIAN_SECRET_KEY: "${GUARDIAN_SECRET_KEY}"
+        DATABASE_URL: "${DATABASE_URL}"
+        SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
+    container_name: recruitment-test-api
+    ports:
+      - ${API_PORT:-4000}:4000
+    depends_on:
+      - database
+    networks:
+      - recruitment-test
 
 networks:
   recruitment-test:

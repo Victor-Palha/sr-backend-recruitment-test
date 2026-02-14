@@ -1,0 +1,64 @@
+name: Tests
+
+on:
+    pull_request:
+        branches: [master, main]
+
+jobs:
+    test:
+        name: Run Tests
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:17
+                env:
+                    POSTGRES_DB: recruitment_test_test
+                    POSTGRES_USER: db_user
+                    POSTGRES_PASSWORD: db_password
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+
+        env:
+            MIX_ENV: test
+            DATABASE_URL: ecto://db_user:db_password@localhost/recruitment_test_test
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Elixir
+              uses: erlef/setup-beam@v1
+              with:
+                  elixir-version: "1.19.3"
+                  otp-version: "28.1.1"
+
+            - name: Cache deps
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      API/deps
+                      API/_build
+                  key: ${{ runner.os }}-mix-${{ hashFiles('API/mix.lock') }}
+                  restore-keys: ${{ runner.os }}-mix-
+
+            - name: Install dependencies
+              working-directory: ./API
+              run: mix deps.get
+
+            - name: Compile
+              working-directory: ./API
+              run: mix compile --warnings-as-errors
+
+            - name: Run migrations
+              working-directory: ./API
+              run: mix ecto.setup
+
+            - name: Run tests
+              working-directory: ./API
+              run: mix test
