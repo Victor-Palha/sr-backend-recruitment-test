@@ -28,8 +28,11 @@ defmodule RecruitmentTestWeb.Graphql.Types.Enterprise do
       resolve(dataloader(RecruitmentTest.Contexts.Content, :contracts, []))
     end
 
-    field(:inserted_at, non_null(:datetime), description: "When the enterprise was created")
-    field(:updated_at, non_null(:datetime), description: "When the enterprise was last updated")
+    field(:inserted_at, non_null(:naive_datetime), description: "When the enterprise was created")
+
+    field(:updated_at, non_null(:naive_datetime),
+      description: "When the enterprise was last updated"
+    )
   end
 
   @desc "Enterprise filters"

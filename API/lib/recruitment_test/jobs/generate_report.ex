@@ -7,34 +7,69 @@ defmodule RecruitmentTest.Jobs.GenerateReport do
     queue: :reports,
     max_attempts: 3
 
+  require Logger
+
   alias RecruitmentTest.Repo
   alias RecruitmentTest.Contexts.Reports.Report
   alias RecruitmentTest.Contexts.Tasks.Task
   alias RecruitmentTest.Contexts.Collaborators.Collaborator
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => task_id}}) do
+  def perform(%Oban.Job{args: %{"id" => task_id}} = job) do
+    Logger.metadata(oban_job_id: job.id, oban_worker: "GenerateReport", oban_queue: "reports")
+    Logger.info("Generating report for task", job: "generate_report", task_id: task_id)
+
     case Repo.get(Task, task_id) do
       nil ->
-        IO.puts("Task with ID #{task_id} not found.")
+        Logger.warning("Task not found for report generation",
+          job: "generate_report",
+          task_id: task_id
+        )
+
         :ok
 
       task ->
         case Repo.get(Collaborator, task.collaborator_id) do
           nil ->
-            IO.puts("Collaborator with ID #{task.collaborator_id} not found.")
+            Logger.warning("Collaborator not found for report generation",
+              job: "generate_report",
+              task_id: task_id,
+              collaborator_id: task.collaborator_id
+            )
+
             :ok
 
           collaborator ->
-            %Report{
-              task_id: task.id,
-              task_name: task.name,
-              task_description: task.description,
-              collaborator_id: collaborator.id,
-              collaborator_name: collaborator.name,
-              completed_at: DateTime.truncate(DateTime.utc_now(), :second)
-            }
-            |> Repo.insert()
+            result =
+              %Report{
+                task_id: task.id,
+                task_name: task.name,
+                task_description: task.description,
+                collaborator_id: collaborator.id,
+                collaborator_name: collaborator.name,
+                completed_at: DateTime.truncate(DateTime.utc_now(), :second)
+              }
+              |> Repo.insert()
+
+            case result do
+              {:ok, report} ->
+                Logger.info("Report generated successfully",
+                  job: "generate_report",
+                  task_id: task_id,
+                  report_id: report.id
+                )
+
+                {:ok, report}
+
+              {:error, changeset} ->
+                Logger.error("Failed to generate report",
+                  job: "generate_report",
+                  task_id: task_id,
+                  errors: inspect(changeset.errors)
+                )
+
+                {:error, changeset}
+            end
         end
     end
   end

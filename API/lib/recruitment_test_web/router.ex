@@ -3,10 +3,12 @@ defmodule RecruitmentTestWeb.Router do
 
   pipeline :api do
     plug(:accepts, ["json"])
+    plug(Plug.RequestId)
   end
 
   pipeline :graphql do
     plug(:accepts, ["json"])
+    plug(Plug.RequestId)
     plug(RecruitmentTestWeb.Plugs.GraphQLContext)
   end
 

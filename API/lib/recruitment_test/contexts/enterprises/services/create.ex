@@ -6,6 +6,8 @@ defmodule RecruitmentTest.Contexts.Enterprises.Services.Create do
   alias RecruitmentTest.Repo
   @cnpj_validator Application.compile_env(:recruitment_test, :cnpj_validator)
 
+  require Logger
+
   @spec call(
           attrs :: %{
             cnpj: String.t(),
@@ -13,14 +15,34 @@ defmodule RecruitmentTest.Contexts.Enterprises.Services.Create do
           }
         ) :: {:ok, map()} | {:error, Ecto.Changeset.t()} | {:error, String.t()}
   def call(attrs) do
+    Logger.info("Creating enterprise", service: "enterprises.create", cnpj: attrs.cnpj)
+
     with {:ok, cnpj_data} <- validate_cnpj(attrs.cnpj),
          merged_attrs <- merge_cnpj_data(attrs, cnpj_data),
          {:ok, _} <- enterprise_with_same_cnpj_exists?(cnpj_data.cnpj),
          {:ok, enterprise} <- insert_enterprise(merged_attrs) do
+      Logger.info("Enterprise created successfully",
+        service: "enterprises.create",
+        enterprise_id: enterprise.id
+      )
+
       {:ok, enterprise}
     else
-      {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
-      {:error, reason} when is_binary(reason) -> {:error, reason}
+      {:error, %Ecto.Changeset{} = changeset} ->
+        Logger.warning("Enterprise creation failed - validation error",
+          service: "enterprises.create",
+          errors: inspect(changeset.errors)
+        )
+
+        {:error, changeset}
+
+      {:error, reason} when is_binary(reason) ->
+        Logger.warning("Enterprise creation failed",
+          service: "enterprises.create",
+          reason: reason
+        )
+
+        {:error, reason}
     end
   end
 

@@ -6,15 +6,39 @@ defmodule RecruitmentTest.Contexts.Collaborators.Services.Delete do
   alias RecruitmentTest.Contexts.Collaborators.Collaborator
   alias RecruitmentTest.Repo
 
+  require Logger
+
   @spec call(id :: String.t()) :: {:ok, map()} | {:error, String.t()}
   def call(id) when is_uuid(id) do
+    Logger.info("Deactivating collaborator", service: "collaborators.delete", collaborator_id: id)
+
     with {:ok, collaborator} <- does_collaborator_exist(id),
          {:ok, deactivated_collaborator} <- deactivate_collaborator(collaborator) do
+      Logger.info("Collaborator deactivated successfully",
+        service: "collaborators.delete",
+        collaborator_id: id
+      )
+
       {:ok, deactivated_collaborator}
+    else
+      {:error, reason} ->
+        Logger.warning("Collaborator deactivation failed",
+          service: "collaborators.delete",
+          collaborator_id: id,
+          reason: reason
+        )
+
+        {:error, reason}
     end
   end
 
-  def call(_id), do: {:error, "Collaborator not found"}
+  def call(_id) do
+    Logger.warning("Collaborator deactivation failed - invalid ID",
+      service: "collaborators.delete"
+    )
+
+    {:error, "Collaborator not found"}
+  end
 
   defp does_collaborator_exist(id) do
     case RecruitmentTest.Contexts.Collaborators.Services.FindById.call(id) do

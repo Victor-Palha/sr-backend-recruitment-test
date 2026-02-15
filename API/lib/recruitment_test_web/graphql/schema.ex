@@ -29,11 +29,11 @@ defmodule RecruitmentTestWeb.Schema do
   end
 
   def middleware(middleware, _field, %{identifier: :query}) do
-    [Middleware.Authenticate | middleware]
+    [Middleware.Authenticate, Middleware.Logger | middleware]
   end
 
   def middleware(middleware, _field, %{identifier: :mutation}) do
-    [Middleware.Authenticate, {Middleware.Authorize, "admin"} | middleware]
+    [Middleware.Authenticate, {Middleware.Authorize, "admin"}, Middleware.Logger | middleware]
   end
 
   def middleware(middleware, _field, _object) do

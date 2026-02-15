@@ -21,8 +21,11 @@ defmodule RecruitmentTestWeb.Graphql.Resolvers.Collaborator do
       id
     )
     |> case do
-      nil -> {:error, "Collaborator not found"}
-      collaborator -> {:ok, collaborator}
+      nil ->
+        {:error, "Collaborator not found"}
+
+      collaborator ->
+        {:ok, collaborator}
     end
   end
 

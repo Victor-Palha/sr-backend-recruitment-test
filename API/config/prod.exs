@@ -4,7 +4,22 @@ import Config
 config :swoosh, local: false
 
 # Do not print debug messages in production
-config :logger, level: :info
+config :logger,
+  level: :info,
+  metadata: [
+    :request_id,
+    :method,
+    :path,
+    :remote_ip,
+    :user_agent,
+    :duration_ms,
+    :user_id,
+    :service,
+    :action,
+    :controller,
+    :errors,
+    :reason
+  ]
 
 # Api client configuration
 config :recruitment_test, :cnpj_validator, RecruitmentTest.Utils.Validators.Cnpj.CnpjValidator

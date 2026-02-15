@@ -1,51 +1,94 @@
 defmodule RecruitmentTest.Contexts.Contracts.Services.Delete do
   @moduledoc """
-  Service module responsible for deleting a contract by its ID.
+  Service module responsible for soft deleting a contract by its ID.
+
+  The contract is marked as cancelled rather than being removed from the database.
+  If the collaborator has no other active contracts after deletion, they are also deactivated.
   """
+
+  import Ecto.Query
   import RecruitmentTest.Utils.Validators.Uuid.IsUuid
+
+  alias RecruitmentTest.Contexts.Collaborators.Collaborator
   alias RecruitmentTest.Contexts.Contracts.Contract
   alias RecruitmentTest.Repo
-  import Ecto.Query
 
-  @spec call(id :: String.t()) :: {:ok, map()} | {:error, String.t()}
+  require Logger
+
+  @spec call(id :: String.t()) :: {:ok, Contract.t()} | {:error, String.t()}
   def call(id) when is_uuid(id) do
-    with {:ok, contract} <- does_contract_exist(id),
-         {:ok, false} <- does_contract_has_tasks?(contract.id),
-         {:ok, deleted_contract} <- delete_contract(contract) do
+    Logger.info("Soft deleting contract", service: "contracts.delete", contract_id: id)
+
+    with {:ok, contract} <- fetch_contract(id),
+         {:ok, deleted_contract} <- deactivate_contract(contract) do
+      Logger.info("Contract deleted successfully",
+        service: "contracts.delete",
+        contract_id: id
+      )
+
       {:ok, deleted_contract}
     else
-      {:error, reason} -> {:error, reason}
+      {:error, reason} ->
+        Logger.warning("Contract deletion failed",
+          service: "contracts.delete",
+          contract_id: id,
+          reason: reason
+        )
+
+        {:error, reason}
     end
   end
 
-  def call(_id), do: {:error, "Contract not found"}
+  def call(_invalid_id) do
+    Logger.warning("Contract deletion failed - invalid ID format",
+      service: "contracts.delete"
+    )
 
-  defp does_contract_exist(id) do
+    {:error, "Contract not found"}
+  end
+
+  defp fetch_contract(id) do
     case Repo.get(Contract, id) do
       nil -> {:error, "Contract not found"}
       contract -> {:ok, contract}
     end
   end
 
-  defp does_contract_has_tasks?(contract_id) do
-    collaborator_id =
-      from(c in Contract, where: c.id == ^contract_id, select: c.collaborator_id)
-      |> Repo.one()
+  defp deactivate_contract(contract) do
+    contract
+    |> Contract.changeset(%{status: "cancelled"})
+    |> Repo.update()
+    |> case do
+      {:ok, updated_contract} ->
+        maybe_deactivate_collaborator(updated_contract.collaborator_id)
+        {:ok, updated_contract}
 
-    tasks_count =
-      from(t in RecruitmentTest.Contexts.Tasks.Task, where: t.collaborator_id == ^collaborator_id)
-      |> Repo.aggregate(:count)
-
-    case tasks_count do
-      0 -> {:ok, false}
-      _ -> {:error, "Cannot delete contract with existing tasks for the collaborator"}
+      {:error, changeset} ->
+        {:error, "Failed to deactivate contract: #{inspect(changeset.errors)}"}
     end
   end
 
-  defp delete_contract(contract) do
-    case Repo.delete(contract) do
-      {:ok, deleted_contract} -> {:ok, deleted_contract}
-      {:error, reason} -> {:error, reason}
+  defp maybe_deactivate_collaborator(collaborator_id) do
+    unless has_active_contracts?(collaborator_id) do
+      deactivate_collaborator(collaborator_id)
     end
+  end
+
+  defp has_active_contracts?(collaborator_id) do
+    Contract
+    |> where([c], c.collaborator_id == ^collaborator_id)
+    |> where([c], c.status == "active")
+    |> Repo.exists?()
+  end
+
+  defp deactivate_collaborator(collaborator_id) do
+    Collaborator
+    |> where([c], c.id == ^collaborator_id)
+    |> Repo.update_all(set: [is_active: false])
+
+    Logger.info("Collaborator deactivated due to no active contracts",
+      service: "contracts.delete",
+      collaborator_id: collaborator_id
+    )
   end
 end

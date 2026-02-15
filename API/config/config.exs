@@ -52,10 +52,32 @@ config :swoosh, :api_client, Swoosh.ApiClient.Finch
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  metadata: [
+    :request_id,
+    :method,
+    :path,
+    :remote_ip,
+    :user_agent,
+    :duration_ms,
+    :user_id,
+    :service,
+    :action,
+    :controller,
+    :plug,
+    :errors,
+    :reason
+  ]
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+config :phoenix, :filter_parameters, [
+  "password",
+  "token",
+  "refresh_token",
+  "access_token",
+  "secret"
+]
 
 # Guardian configuration
 config :recruitment_test, RecruitmentTest.Guardian,

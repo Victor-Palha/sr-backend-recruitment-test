@@ -6,6 +6,8 @@ defmodule RecruitmentTest.Contexts.Tasks.Services.Update do
   import RecruitmentTest.Utils.Validators.Uuid.IsUuid
   alias RecruitmentTest.Repo
 
+  require Logger
+
   @spec call(
           id :: String.t(),
           attrs :: %{
@@ -16,14 +18,34 @@ defmodule RecruitmentTest.Contexts.Tasks.Services.Update do
           }
         ) :: {:ok, map()} | {:error, Ecto.Changeset.t()} | {:error, String.t()}
   def call(id, attrs) when is_uuid(id) do
+    Logger.info("Updating task", service: "tasks.update", task_id: id)
+
     with {:ok, task} <- does_task_exist(id),
          {:ok, updated_task} <- update_task(task, attrs) do
+      Logger.info("Task updated successfully",
+        service: "tasks.update",
+        task_id: id,
+        status: updated_task.status
+      )
+
       generate_report_if_completed(updated_task)
       {:ok, updated_task}
+    else
+      {:error, reason} = error ->
+        Logger.warning("Task update failed",
+          service: "tasks.update",
+          task_id: id,
+          reason: inspect(reason)
+        )
+
+        error
     end
   end
 
-  def call(_id, _attrs), do: {:error, "Task not found"}
+  def call(_id, _attrs) do
+    Logger.warning("Task update failed - invalid ID", service: "tasks.update")
+    {:error, "Task not found"}
+  end
 
   defp does_task_exist(id) do
     case RecruitmentTest.Contexts.Tasks.Services.FindById.call(id) do

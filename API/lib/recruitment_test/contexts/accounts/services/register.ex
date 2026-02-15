@@ -6,19 +6,31 @@ defmodule RecruitmentTest.Contexts.Accounts.Services.Register do
   alias RecruitmentTest.Contexts.Accounts.User
   alias RecruitmentTest.Repo
 
-  @spec call(attrs :: map()) :: {:ok, Ecto.Changeset.t()} | {:error, Ecto.Changeset.t()}
-  def call(attrs) do
-    user =
-      %User{}
-      |> User.changeset(attrs)
-      |> Repo.insert()
+  require Logger
 
-    case user do
+  @spec call(attrs :: map()) :: {:ok, map()} | {:error, Ecto.Changeset.t()}
+  def call(attrs) do
+    Logger.info("Registering new user",
+      service: "accounts.register",
+      email: attrs["email"] || attrs[:email]
+    )
+
+    case %User{} |> User.changeset(attrs) |> Repo.insert() do
       {:ok, user} ->
+        Logger.info("User registered successfully",
+          service: "accounts.register",
+          user_id: user.id
+        )
+
         add_user_to_queue(user)
         {:ok, user}
 
       {:error, changeset} ->
+        Logger.warning("User registration failed",
+          service: "accounts.register",
+          errors: inspect(changeset.errors)
+        )
+
         {:error, changeset}
     end
   end
