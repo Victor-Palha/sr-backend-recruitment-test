@@ -4,6 +4,7 @@ defmodule RecruitmentTestWeb.Schema do
   import_types(Absinthe.Type.Custom)
 
   import_types(RecruitmentTestWeb.Graphql.Types.Pagination)
+  import_types(RecruitmentTestWeb.Graphql.Types.User)
   import_types(RecruitmentTestWeb.Graphql.Types.Collaborator)
   import_types(RecruitmentTestWeb.Graphql.Types.Enterprise)
   import_types(RecruitmentTestWeb.Graphql.Types.Contract)
@@ -41,6 +42,19 @@ defmodule RecruitmentTestWeb.Schema do
   end
 
   query do
+    @desc "Get a user by ID"
+    field :user, :user do
+      arg(:id, non_null(:id))
+      resolve(&Resolvers.User.get_user/3)
+    end
+
+    @desc "List all users"
+    field :users, :paginated_users do
+      arg(:pagination, :pagination_input)
+      arg(:filters, :user_filters)
+      resolve(&Resolvers.User.list_users/3)
+    end
+
     @desc "Get a collaborator by ID"
     field :collaborator, :collaborator do
       arg(:id, non_null(:id))
