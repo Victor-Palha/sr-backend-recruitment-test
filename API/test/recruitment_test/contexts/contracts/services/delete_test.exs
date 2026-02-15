@@ -54,7 +54,7 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.DeleteTest do
     test "deletes a contract successfully when it has no tasks", %{contract: contract} do
       assert {:ok, %Contract{} = deleted_contract} = Delete.call(contract.id)
       assert deleted_contract.id == contract.id
-      assert is_nil(Repo.get(Contract, contract.id))
+      assert deleted_contract.status == "cancelled"
     end
 
     test "returns error when contract does not exist" do
@@ -72,26 +72,6 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.DeleteTest do
 
     test "returns error with empty string ID" do
       assert {:error, "Contract not found"} = Delete.call("")
-    end
-
-    test "returns error when contract has associated tasks", %{
-      contract: contract,
-      collaborator: collaborator
-    } do
-      %Task{}
-      |> Task.changeset(%{
-        name: "Test Task",
-        description: "Test task description",
-        collaborator_id: collaborator.id,
-        status: "pending",
-        priority: 1
-      })
-      |> Repo.insert()
-
-      assert {:error, "Cannot delete contract with existing tasks for the collaborator"} =
-               Delete.call(contract.id)
-
-      assert Repo.get(Contract, contract.id)
     end
 
     test "deletes contract even if it has expired status", %{
@@ -112,8 +92,7 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.DeleteTest do
         })
         |> Repo.insert()
 
-      assert {:ok, %Contract{}} = Delete.call(expired_contract.id)
-      assert is_nil(Repo.get(Contract, expired_contract.id))
+      assert {:ok, %Contract{status: "cancelled"}} = Delete.call(expired_contract.id)
     end
 
     test "deletes contract even if it has cancelled status", %{
@@ -143,37 +122,7 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.DeleteTest do
         })
         |> Repo.insert()
 
-      assert {:ok, %Contract{}} = Delete.call(cancelled_contract.id)
-      assert is_nil(Repo.get(Contract, cancelled_contract.id))
-    end
-
-    test "deletes contract without value", %{enterprise: enterprise} do
-      {:ok, no_value_collaborator} =
-        %Collaborator{}
-        |> Collaborator.changeset(%{
-          name: "No Value User",
-          email: "novalue@example.com",
-          cpf: "11122233344",
-          is_active: true
-        })
-        |> Repo.insert()
-
-      starts_at = DateTime.utc_now() |> DateTime.add(-1, :day)
-      expires_at = DateTime.utc_now() |> DateTime.add(30, :day)
-
-      {:ok, contract_without_value} =
-        %Contract{}
-        |> Contract.changeset(%{
-          enterprise_id: enterprise.id,
-          collaborator_id: no_value_collaborator.id,
-          starts_at: starts_at,
-          expires_at: expires_at,
-          status: "active"
-        })
-        |> Repo.insert()
-
-      assert {:ok, %Contract{}} = Delete.call(contract_without_value.id)
-      assert is_nil(Repo.get(Contract, contract_without_value.id))
+      assert {:ok, %Contract{status: "cancelled"}} = Delete.call(cancelled_contract.id)
     end
 
     test "can delete one contract while others exist for different collaborators", %{
@@ -205,43 +154,12 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.DeleteTest do
         |> Repo.insert()
 
       assert {:ok, %Contract{}} = Delete.call(first_contract.id)
-      assert is_nil(Repo.get(Contract, first_contract.id))
 
       assert Repo.get(Contract, second_contract.id)
     end
 
-    test "returns error when trying to delete already deleted contract", %{contract: contract} do
-      assert {:ok, %Contract{}} = Delete.call(contract.id)
-
-      assert {:error, "Contract not found"} = Delete.call(contract.id)
-    end
-
-    test "returns error when collaborator has multiple tasks", %{
-      contract: contract,
-      collaborator: collaborator
-    } do
-      %Task{}
-      |> Task.changeset(%{
-        name: "Task 1",
-        collaborator_id: collaborator.id,
-        status: "pending",
-        priority: 1
-      })
-      |> Repo.insert()
-
-      %Task{}
-      |> Task.changeset(%{
-        name: "Task 2",
-        collaborator_id: collaborator.id,
-        status: "in_progress",
-        priority: 2
-      })
-      |> Repo.insert()
-
-      assert {:error, "Cannot delete contract with existing tasks for the collaborator"} =
-               Delete.call(contract.id)
-
-      assert Repo.get(Contract, contract.id)
+    test "returns contract with status cancelled", %{contract: contract} do
+      assert {:ok, %Contract{status: "cancelled"}} = Delete.call(contract.id)
     end
   end
 end

@@ -61,7 +61,11 @@ defmodule RecruitmentTestWeb.Graphql.Helpers.PaginationHelper do
     end)
   end
 
-  # Collaborator filters
+  # Collaborator and User filters
+  defp apply_filter(query, :role, value) do
+    where(query, [q], q.role == ^value)
+  end
+
   defp apply_filter(query, :name, value) do
     where(query, [q], ilike(q.name, ^"%#{value}%"))
   end

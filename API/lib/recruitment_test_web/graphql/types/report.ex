@@ -33,7 +33,7 @@ defmodule RecruitmentTestWeb.Graphql.Types.Report do
       resolve(dataloader(RecruitmentTest.Contexts.Content, :task, []))
     end
 
-    field(:inserted_at, non_null(:datetime), description: "When the report was created")
+    field(:inserted_at, non_null(:naive_datetime), description: "When the report was created")
   end
 
   @desc "Report filters"

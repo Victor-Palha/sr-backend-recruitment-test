@@ -8,22 +8,37 @@ defmodule RecruitmentTest.Jobs.DailyReportSummary do
     queue: :reports,
     max_attempts: 3
 
+  require Logger
+
   import Ecto.Query
   alias RecruitmentTest.Repo
   alias RecruitmentTest.Contexts.Reports.Report
   alias RecruitmentTest.Contexts.Accounts.User
 
   @impl Oban.Worker
-  def perform(%Oban.Job{}) do
+  def perform(%Oban.Job{} = job) do
+    Logger.metadata(oban_job_id: job.id, oban_worker: "DailyReportSummary", oban_queue: "reports")
+    Logger.info("Starting daily report summary generation", job: "daily_report_summary")
+
     today = Date.utc_today()
     reports = fetch_today_reports(today)
 
     case reports do
       [] ->
-        IO.puts("No reports generated today (#{today})")
+        Logger.info("No reports generated today",
+          job: "daily_report_summary",
+          date: to_string(today)
+        )
+
         :ok
 
       reports ->
+        Logger.info("Sending daily report summary",
+          job: "daily_report_summary",
+          date: to_string(today),
+          report_count: length(reports)
+        )
+
         send_daily_summary(reports, today)
         :ok
     end

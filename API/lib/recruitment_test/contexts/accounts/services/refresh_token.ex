@@ -8,8 +8,12 @@ defmodule RecruitmentTest.Contexts.Accounts.Services.RefreshToken do
   alias RecruitmentTest.Repo
   import Ecto.Query
 
+  require Logger
+
   @spec call(refresh_token :: String.t()) :: {:ok, map()} | {:error, String.t()}
   def call(refresh_token) do
+    Logger.info("Token refresh attempt", service: "accounts.refresh_token")
+
     with {:ok, claims} <- Guardian.verify_token(refresh_token),
          {:ok, token_record} <- find_token_record(refresh_token),
          {:ok, token_record} <- verify_token_valid(token_record),
@@ -17,11 +21,21 @@ defmodule RecruitmentTest.Contexts.Accounts.Services.RefreshToken do
          {:ok, token_data} <- Guardian.generate_tokens(user),
          {:ok, _} <- revoke_old_token(token_record),
          {:ok, _refresh_token} <- store_new_refresh_token(user, token_data) do
+      Logger.info("Token refresh successful", service: "accounts.refresh_token", user_id: user.id)
+
       {:ok,
        %{
          access_token: token_data.access_token,
          refresh_token: token_data.refresh_token
        }}
+    else
+      {:error, reason} = error ->
+        Logger.warning("Token refresh failed",
+          service: "accounts.refresh_token",
+          reason: inspect(reason)
+        )
+
+        error
     end
   end
 
@@ -29,7 +43,7 @@ defmodule RecruitmentTest.Contexts.Accounts.Services.RefreshToken do
     refresh_token_hash =
       RecruitmentTest.Utils.Validators.Token.HashToken.hash_token(token)
 
-    case Repo.one(from t in Token, where: t.token == ^refresh_token_hash and t.type == "refresh") do
+    case Repo.one(from(t in Token, where: t.token == ^refresh_token_hash and t.type == "refresh")) do
       nil -> {:error, "Invalid refresh token"}
       token_record -> {:ok, token_record}
     end

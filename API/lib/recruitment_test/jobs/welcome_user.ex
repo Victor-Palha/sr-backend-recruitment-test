@@ -9,10 +9,27 @@ defmodule RecruitmentTest.Jobs.WelcomeUser do
     queue: :email,
     max_attempts: 3
 
+  require Logger
+
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"id" => _user_id, "email" => email, "name" => name}}) do
-    send_welcome_email(email, name)
-    :ok
+  def perform(%Oban.Job{args: %{"id" => user_id, "email" => email, "name" => name}} = job) do
+    Logger.metadata(oban_job_id: job.id, oban_worker: "WelcomeUser", oban_queue: "email")
+    Logger.info("Sending welcome email", job: "welcome_user", user_id: user_id, email: email)
+
+    case send_welcome_email(email, name) do
+      {:ok, _} ->
+        Logger.info("Welcome email sent successfully", job: "welcome_user", user_id: user_id)
+        :ok
+
+      {:error, reason} ->
+        Logger.error("Failed to send welcome email",
+          job: "welcome_user",
+          user_id: user_id,
+          reason: inspect(reason)
+        )
+
+        {:error, reason}
+    end
   end
 
   defp send_welcome_email(email, name) do

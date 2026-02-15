@@ -6,21 +6,26 @@ defmodule RecruitmentTestWeb.Plugs.GraphQLContext do
 
   @behaviour Plug
 
+  require Logger
+
   alias RecruitmentTest.Guardian
 
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    # Check if context is already set (e.g., in tests)
     existing_context = conn.private[:absinthe][:context] || %{}
 
-    # Only build context if not already set with current_user
     context =
       if Map.has_key?(existing_context, :current_user) do
         existing_context
       else
         build_context(conn)
       end
+
+    Logger.debug("GraphQL context built",
+      plug: "graphql_context",
+      authenticated: Map.has_key?(context, :current_user)
+    )
 
     Absinthe.Plug.put_options(conn, context: context)
   end

@@ -7,6 +7,8 @@ defmodule RecruitmentTestWeb.Plugs.RequireRole do
   import Plug.Conn
   import Phoenix.Controller
 
+  require Logger
+
   def init(opts) do
     roles = Keyword.get(opts, :roles, [])
 
@@ -22,15 +24,34 @@ defmodule RecruitmentTestWeb.Plugs.RequireRole do
 
     cond do
       is_nil(current_user) ->
+        Logger.warning("Role check failed - user not authenticated",
+          plug: "require_role",
+          required_roles: inspect(required_roles)
+        )
+
         conn
         |> put_status(:unauthorized)
         |> json(%{error: "Unauthorized - User not authenticated"})
         |> halt()
 
       current_user.role in required_roles ->
+        Logger.debug("Role check passed",
+          plug: "require_role",
+          user_id: current_user.id,
+          user_role: current_user.role,
+          required_roles: inspect(required_roles)
+        )
+
         conn
 
       true ->
+        Logger.warning("Role check failed - insufficient permissions",
+          plug: "require_role",
+          user_id: current_user.id,
+          user_role: current_user.role,
+          required_roles: inspect(required_roles)
+        )
+
         conn
         |> put_status(:forbidden)
         |> json(%{error: "Forbidden - Insufficient permissions"})

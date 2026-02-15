@@ -8,15 +8,26 @@ defmodule RecruitmentTest.Contexts.Accounts.Services.FindById do
   import Ecto.Query
   import RecruitmentTest.Utils.Validators.Uuid.IsUuid
 
+  require Logger
+
   @spec call(id :: String.t()) :: {:ok, Ecto.Changeset.t()} | {:error, String.t()}
   def call(id) when is_uuid(id) do
+    Logger.debug("Finding user by ID", service: "accounts.find_by_id", user_id: id)
+
     from(u in User, where: u.id == ^id and is_nil(u.deleted_at))
     |> Repo.one()
     |> case do
-      nil -> {:error, "User not found"}
-      user -> {:ok, user}
+      nil ->
+        Logger.debug("User not found", service: "accounts.find_by_id", user_id: id)
+        {:error, "User not found"}
+
+      user ->
+        {:ok, user}
     end
   end
 
-  def call(_id), do: {:error, "User not found"}
+  def call(_id) do
+    Logger.debug("User lookup with invalid ID", service: "accounts.find_by_id")
+    {:error, "User not found"}
+  end
 end

@@ -6,6 +6,8 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.Create do
   alias RecruitmentTest.Contexts.Collaborators.Collaborator
   alias RecruitmentTest.Repo
 
+  require Logger
+
   @spec call(
           attrs :: %{
             enterprise_id: String.t(),
@@ -17,18 +19,54 @@ defmodule RecruitmentTest.Contexts.Contracts.Services.Create do
           }
         ) :: {:ok, map()} | {:error, Ecto.Changeset.t()} | {:error, String.t()}
   def call(attrs) do
+    Logger.info("Creating contract",
+      service: "contracts.create",
+      enterprise_id: attrs[:enterprise_id],
+      collaborator_id: attrs[:collaborator_id]
+    )
+
     with {:ok, enterprise_id} <- get_enterprise_id(attrs),
          {:ok, collaborator_id} <- get_collaborator_id(attrs),
          {:ok, _enterprise} <- does_enterprise_exist(enterprise_id),
          {:ok, collaborator} <- does_collaborator_exist(collaborator_id),
          {:ok, contract} <- insert_contract(attrs),
          {:ok, _collaborator} <- activate_collaborator(collaborator) do
+      Logger.info("Contract created successfully",
+        service: "contracts.create",
+        contract_id: contract.id
+      )
+
       {:ok, contract}
     else
-      {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
-      {:error, "Enterprise not found"} -> {:error, "Enterprise not found"}
-      {:error, "Collaborator not found"} -> {:error, "Collaborator not found"}
-      {:error, reason} -> {:error, reason}
+      {:error, %Ecto.Changeset{} = changeset} ->
+        Logger.warning("Contract creation failed - validation error",
+          service: "contracts.create",
+          errors: inspect(changeset.errors)
+        )
+
+        {:error, changeset}
+
+      {:error, "Enterprise not found"} ->
+        Logger.warning("Contract creation failed - enterprise not found",
+          service: "contracts.create"
+        )
+
+        {:error, "Enterprise not found"}
+
+      {:error, "Collaborator not found"} ->
+        Logger.warning("Contract creation failed - collaborator not found",
+          service: "contracts.create"
+        )
+
+        {:error, "Collaborator not found"}
+
+      {:error, reason} ->
+        Logger.warning("Contract creation failed",
+          service: "contracts.create",
+          reason: inspect(reason)
+        )
+
+        {:error, reason}
     end
   end
 

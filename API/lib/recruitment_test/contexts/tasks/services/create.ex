@@ -6,6 +6,8 @@ defmodule RecruitmentTest.Contexts.Tasks.Services.Create do
   alias RecruitmentTest.Contexts.Tasks.Task
   alias RecruitmentTest.Repo
 
+  require Logger
+
   @spec call(
           attrs :: %{
             name: String.t(),
@@ -16,11 +18,30 @@ defmodule RecruitmentTest.Contexts.Tasks.Services.Create do
           }
         ) :: {:ok, map()} | {:error, Ecto.Changeset.t()} | {:error, String.t()}
   def call(attrs) do
+    Logger.info("Creating task",
+      service: "tasks.create",
+      collaborator_id: attrs[:collaborator_id]
+    )
+
     with {:ok, collaborator} <- does_collaborator_exist(attrs),
          {:ok, true} <- is_collaborator_active?(collaborator) do
-      insert_task(attrs)
+      case insert_task(attrs) do
+        {:ok, task} ->
+          Logger.info("Task created successfully", service: "tasks.create", task_id: task.id)
+          {:ok, task}
+
+        {:error, changeset} ->
+          Logger.warning("Task creation failed - validation error",
+            service: "tasks.create",
+            errors: inspect(changeset.errors)
+          )
+
+          {:error, changeset}
+      end
     else
-      {:error, reason} when is_binary(reason) -> {:error, reason}
+      {:error, reason} when is_binary(reason) ->
+        Logger.warning("Task creation failed", service: "tasks.create", reason: reason)
+        {:error, reason}
     end
   end
 

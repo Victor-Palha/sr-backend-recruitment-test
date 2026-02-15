@@ -8,21 +8,37 @@ defmodule RecruitmentTest.Contexts.Accounts.Services.Login do
   alias RecruitmentTest.Repo
   import Ecto.Query
 
+  require Logger
+
   @spec call(email :: String.t(), password :: String.t()) ::
           {:ok, map()} | {:error, String.t()}
   def call(email, password) do
+    Logger.info("Login attempt", service: "accounts.login", email: email)
+
     with {:ok, user} <- find_user_by_email(email),
          {:ok, user} <- verify_user_active(user),
          {:ok, user} <- verify_password(user, password),
          {:ok, tokens} <- generate_and_store_tokens(user) do
-      {:ok, tokens}
+      Logger.info("Login successful", service: "accounts.login", user_id: user.id)
+
+      response = %{
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        user: user
+      }
+
+      {:ok, response}
+    else
+      {:error, reason} = error ->
+        Logger.warning("Login failed", service: "accounts.login", email: email, reason: reason)
+        error
     end
   end
 
   defp find_user_by_email(email) do
     email_lower = String.downcase(email)
 
-    case Repo.one(from u in User, where: u.email == ^email_lower and is_nil(u.deleted_at)) do
+    case Repo.one(from(u in User, where: u.email == ^email_lower and is_nil(u.deleted_at))) do
       nil -> {:error, "Invalid credentials"}
       user -> {:ok, user}
     end

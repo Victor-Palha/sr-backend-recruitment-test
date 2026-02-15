@@ -34,8 +34,8 @@ defmodule RecruitmentTestWeb.Graphql.Types.Task do
       resolve(dataloader(RecruitmentTest.Contexts.Content, :report, []))
     end
 
-    field(:inserted_at, non_null(:datetime), description: "When the task was created")
-    field(:updated_at, non_null(:datetime), description: "When the task was last updated")
+    field(:inserted_at, non_null(:naive_datetime), description: "When the task was created")
+    field(:updated_at, non_null(:naive_datetime), description: "When the task was last updated")
   end
 
   @desc "Task filters"

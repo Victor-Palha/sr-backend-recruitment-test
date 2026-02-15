@@ -34,8 +34,11 @@ defmodule RecruitmentTestWeb.Graphql.Types.Contract do
       resolve(dataloader(RecruitmentTest.Contexts.Content, :collaborator, []))
     end
 
-    field(:inserted_at, non_null(:datetime), description: "When the contract was created")
-    field(:updated_at, non_null(:datetime), description: "When the contract was last updated")
+    field(:inserted_at, non_null(:naive_datetime), description: "When the contract was created")
+
+    field(:updated_at, non_null(:naive_datetime),
+      description: "When the contract was last updated"
+    )
   end
 
   @desc "Contract filters"
