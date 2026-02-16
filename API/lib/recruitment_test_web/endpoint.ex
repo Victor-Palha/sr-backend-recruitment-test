@@ -34,7 +34,7 @@ defmodule RecruitmentTestWeb.Endpoint do
 
   plug(Corsica,
     origins: [
-      "http://localhost",
+      "*",
       ~r{^http?://(.*\.)?localhost\:(.*)$},
       ~r{^https?://(.*\.)?localhost\:(.*)$}
     ],

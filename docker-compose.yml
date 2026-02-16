@@ -17,18 +17,22 @@ services:
       context: ./API
       dockerfile: Dockerfile
       args:
-        DATABASE_HOST: "database"
-        DATABASE_USER: "db_user"
-        DATABASE_PASSWORD: "db_password"
-        DATABASE_DB: "recruitment_test_dev"
-        DATABASE_URL: "${DATABASE_URL}"
-        GUARDIAN_ISSUER: "${GUARDIAN_ISSUER}"
-        GUARDIAN_SECRET_KEY: "${GUARDIAN_SECRET_KEY}"
-        SECRET_KEY_BASE: "${SECRET_KEY_BASE}"
-        RESEND_API_KEY: "${RESEND_API_KEY}"
+        MIX_ENV: ${MIX_ENV:-dev}
+        DATABASE_HOST: database
     container_name: recruitment-test-api
     ports:
       - ${API_PORT:-4000}:4000
+    environment:
+      MIX_ENV: ${MIX_ENV:-dev}
+      DATABASE_HOST: database
+      DATABASE_USER: db_user
+      DATABASE_PASSWORD: db_password
+      DATABASE_NAME: recruitment_test_dev
+      DATABASE_URL: ${DATABASE_URL}
+      GUARDIAN_ISSUER: ${GUARDIAN_ISSUER}
+      GUARDIAN_SECRET_KEY: ${GUARDIAN_SECRET_KEY}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      RESEND_API_KEY: ${RESEND_API_KEY}
     depends_on:
       - database
     networks:
