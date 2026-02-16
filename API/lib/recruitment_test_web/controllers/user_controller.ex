@@ -1,12 +1,34 @@
 defmodule RecruitmentTestWeb.UserController do
   use RecruitmentTestWeb, :controller
+  use OpenApiSpex.ControllerSpecs
 
   require Logger
 
   alias RecruitmentTest.Contexts.Accounts.Services.Register
+  alias RecruitmentTestWeb.Swagger.Requests
+  alias RecruitmentTestWeb.Swagger.Schemas
 
   plug(RecruitmentTestWeb.Plugs.Authenticate)
   plug(RecruitmentTestWeb.Plugs.RequireRole, roles: ["admin"])
+
+  tags(["Users"])
+
+  operation(:create,
+    summary: "Create User",
+    description: "Creates a new user in the system. Only accessible by admin users.",
+    request_body:
+      {"User creation request", "application/json", Requests.CreateUserRequest, required: true},
+    responses: [
+      created: {"User created successfully", "application/json", Schemas.UserResponse},
+      bad_request: {"Missing required parameters", "application/json", Schemas.ErrorResponse},
+      unauthorized:
+        {"Unauthorized - missing or invalid token", "application/json", Schemas.ErrorResponse},
+      forbidden: {"Forbidden - admin role required", "application/json", Schemas.ErrorResponse},
+      unprocessable_entity:
+        {"Validation errors", "application/json", Schemas.ValidationErrorResponse}
+    ],
+    security: [%{"BearerAuth" => []}]
+  )
 
   @doc """
   Creates a new user. Only accessible by admin users.
