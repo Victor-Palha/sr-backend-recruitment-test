@@ -15,9 +15,6 @@ defmodule RecruitmentTestWeb.Swagger.ApiSpec do
         version: "1.0.0",
         description: "API for managing enterprise collaborators, contracts, tasks, and reports"
       },
-      servers: [
-        Server.from_endpoint(Endpoint)
-      ],
       paths: Paths.from_router(Router),
       components: %Components{
         securitySchemes: %{

@@ -1,4 +1,4 @@
-# Documentação da API — ash/recruitment
+# Documentação da API — Vitor Palha
 
 ## Índice
 
@@ -18,54 +18,62 @@
    - [Plugs HTTP](#plugs-http)
 6. [API REST](#api-rest)
    - [Porque REST?](#porque-rest)
-7. [API GraphQL](#api-graphql)
+7. [Documentação Swagger/OpenAPI](#documentação-swaggeropenapi)
+   - [Endpoints de Documentação](#endpoints-de-documentação)
+   - [Scalar UI](#scalar-ui)
+   - [Schemas e Requests](#schemas-e-requests)
+8. [API GraphQL](#api-graphql)
    - [Visão Geral do Schema](#visão-geral-do-schema)
    - [Paginação](#paginação)
    - [Filtros](#filtros)
    - [Enums](#enums)
    - [Dataloader (N+1)](#dataloader-n1)
-8. [Regras de Negócio](#regras-de-negócio)
+9. [Regras de Negócio](#regras-de-negócio)
    - [Usuários (Users)](#usuários-users)
    - [Colaboradores (Collaborators)](#colaboradores-collaborators)
    - [Empresas (Enterprises)](#empresas-enterprises)
    - [Contratos (Contracts)](#contratos-contracts)
    - [Tarefas (Tasks)](#tarefas-tasks)
    - [Relatórios (Reports)](#relatórios-reports)
-9. [Jobs Assíncronos (Oban)](#jobs-assíncronos-oban)
-   - [WelcomeUser](#welcomeuser)
-   - [GenerateReport](#generatereport)
-   - [DailyReportSummary](#dailyreportsummary)
-10. [Validadores e Utilitários](#validadores-e-utilitários)
+10. [Jobs Assíncronos (Oban)](#jobs-assíncronos-oban)
+
+- [WelcomeUser](#welcomeuser)
+- [GenerateReport](#generatereport)
+- [DailyReportSummary](#dailyreportsummary)
+
+11. [Validadores e Utilitários](#validadores-e-utilitários)
     - [UUID Guard](#uuid-guard)
     - [Token Hash](#token-hash)
     - [Validador de CNPJ](#validador-de-cnpj)
-11. [Observabilidade e Logging](#observabilidade-e-logging)
+12. [Observabilidade e Logging](#observabilidade-e-logging)
     - [Camadas de Logging](#camadas-de-logging)
     - [Metadados de Log](#metadados-de-log)
     - [Redação de Dados Sensíveis](#redação-de-dados-sensíveis)
     - [Phoenix Filter Parameters](#phoenix-filter-parameters)
-12. [E-mails (Swoosh)](#e-mails-swoosh)
-13. [CORS](#cors)
-14. [Dependências](#dependências)
-15. [Configuração por Ambiente](#configuração-por-ambiente)
+13. [E-mails (Swoosh)](#e-mails-swoosh)
+14. [CORS](#cors)
+15. [Dependências](#dependências)
+16. [Configuração por Ambiente](#configuração-por-ambiente)
     - [Desenvolvimento (`dev.exs`)](#desenvolvimento-devexs)
     - [Teste (`test.exs`)](#teste-testexs)
     - [Produção (`runtime.exs`)](#produção-runtimeexs)
-16. [Docker e Deploy Local](#docker-e-deploy-local)
+17. [Docker e Deploy Local](#docker-e-deploy-local)
     - [Dockerfile](#dockerfile)
     - [`entrypoint.sh`](#entrypointsh)
     - [Docker Compose](#docker-compose)
-17. [Considerações Finais](#considerações-finais)
+18. [Considerações Finais](#considerações-finais)
+19. [Referências](#referências)
 
 ---
 
 ## Visão Geral
 
-A **ash/recruitment** é uma API backend construída em **Elixir/Phoenix** que fornece uma plataforma de gestão de empresas e tarefas. A aplicação permite gerenciar **usuários**, **colaboradores**, **empresas**, **contratos**, **tarefas** e **relatórios** através de uma API GraphQL completa e endpoints REST para autenticação.
+A API backend construída em **Elixir/Phoenix** que fornece uma plataforma de gestão de empresas e tarefas. A aplicação permite gerenciar **usuários**, **colaboradores**, **empresas**, **contratos**, **tarefas** e **relatórios** através de uma API GraphQL completa e endpoints REST para autenticação.
 
 **Principais características:**
 
 - API GraphQL com Absinthe (queries, mutations, paginação, filtros)
+- API REST documentada com OpenAPI/Swagger (interface Scalar)
 - Autenticação JWT com Guardian (access + refresh tokens)
 - Autorização baseada em roles (admin/user)
 - Jobs assíncronos com Oban (emails, relatórios)
@@ -80,25 +88,26 @@ A **ash/recruitment** é uma API backend construída em **Elixir/Phoenix** que f
 
 ## Stack Tecnológica
 
-| Tecnologia     | Versão           | Propósito                        |
-| -------------- | ---------------- | -------------------------------- |
-| **Elixir**     | ~> 1.14 (1.19.3) | Linguagem principal              |
-| **Erlang/OTP** | 28.1.1           | Runtime da BEAM VM               |
-| **Phoenix**    | ~> 1.7.18        | Framework web                    |
-| **Absinthe**   | ~> 1.7           | Framework GraphQL                |
-| **Ecto**       | ~> 3.10          | ORM / Query builder              |
-| **PostgreSQL** | 17               | Banco de dados relacional        |
-| **Guardian**   | ~> 2.3           | Autenticação JWT                 |
-| **Bcrypt**     | ~> 3.0           | Hash de senhas                   |
-| **Oban**       | ~> 2.19          | Jobs assíncronos / Filas         |
-| **Swoosh**     | ~> 1.5           | Envio de emails                  |
-| **Resend**     | —                | Provedor de email (produção)     |
-| **Dataloader** | ~> 1.0.11        | Batch loading (N+1)              |
-| **HTTPoison**  | ~> 2.3           | Cliente HTTP (BrasilAPI)         |
-| **Bandit**     | ~> 1.5           | Servidor HTTP (substitui Cowboy) |
-| **Corsica**    | ~> 1.0           | Middleware CORS                  |
-| **Jason**      | ~> 1.2           | Serialização JSON                |
-| **Docker**     | —                | Containerização                  |
+| Tecnologia       | Versão           | Propósito                        |
+| ---------------- | ---------------- | -------------------------------- |
+| **Elixir**       | ~> 1.14 (1.19.3) | Linguagem principal              |
+| **Erlang/OTP**   | 28.1.1           | Runtime da BEAM VM               |
+| **Phoenix**      | ~> 1.7.18        | Framework web                    |
+| **Absinthe**     | ~> 1.7           | Framework GraphQL                |
+| **OpenAPI Spex** | ~> 3.15          | Documentação OpenAPI/Swagger     |
+| **Ecto**         | ~> 3.10          | ORM / Query builder              |
+| **PostgreSQL**   | 17               | Banco de dados relacional        |
+| **Guardian**     | ~> 2.3           | Autenticação JWT                 |
+| **Bcrypt**       | ~> 3.0           | Hash de senhas                   |
+| **Oban**         | ~> 2.19          | Jobs assíncronos / Filas         |
+| **Swoosh**       | ~> 1.5           | Envio de emails                  |
+| **Resend**       | —                | Provedor de email (produção)     |
+| **Dataloader**   | ~> 1.0.11        | Batch loading (N+1)              |
+| **HTTPoison**    | ~> 2.3           | Cliente HTTP (BrasilAPI)         |
+| **Bandit**       | ~> 1.5           | Servidor HTTP (substitui Cowboy) |
+| **Corsica**      | ~> 1.0           | Middleware CORS                  |
+| **Jason**        | ~> 1.2           | Serialização JSON                |
+| **Docker**       | —                | Containerização                  |
 
 ---
 
@@ -164,7 +173,14 @@ API/
 
 ### Padrão de Contextos (DDD)
 
-A aplicação segue o padrão de **Contextos** do Phoenix, entretanto, foi feita uma mudança mais inspirado em Domain-Driven Design. Cada contexto encapsula uma área de domínio com seus schemas, services e regras de negócio. Dessa maneira evitamos a mistura de lógica e mantemos uma separação clara entre as responsabilidades.
+A aplicação segue o padrão de **Contextos** do Phoenix, que organiza o código em torno de áreas de domínio.
+Cada contexto é responsável por uma parte específica da aplicação, como `Accounts` para gestão de usuários, `Collaborators` para gestão de colaboradores, etc. Dentro de cada contexto, temos:
+
+- **Schemas**: Definição das estruturas de dados e validações (Ecto Schemas)
+- **Services**: Módulos que encapsulam a lógica de negócio e operações específicas (ex: `CreateCollaborator`, `UpdateEnterprise`, etc.)
+- **Regras de Negócio**: Cada service implementa regras de negócio específicas, garantindo que a lógica esteja centralizada e fácil de manter.
+
+Entretanto, eu estruturei a aplicação de forma a ter uma camada de serviços (services) dentro de cada contexto, onde cada operação de negócio é encapsulada em um módulo específico. Essa abordagem ajuda a manter a lógica de negócio organizada, testável e reutilizável, além de seguir o princípio de responsabilidade única (SRP). Além de separar os contextos em uma pasta específica dentro do domínio.
 
 ```
 contexts/
@@ -473,6 +489,92 @@ Apesar de a API ser principalmente GraphQL, mantemos alguns endpoints REST para:
   - A escolha de utilizar REST especificamente para autenticação se deve ao fato de que esses endpoints são mais sensíveis à segurança e geralmente são mais simples, sem necessidade de flexibilidade de consulta. Além disso, muitos clientes (mobile, frontend) já possuem bibliotecas prontas para lidar com autenticação REST, o que facilita a integração.
   - Motivação adicional: manter a autenticação separada do GraphQL pode ajudar a reduzir a superfície de ataque, já que o endpoint REST pode ser mais facilmente monitorado e protegido com rate limiting, firewalls, etc. Particularmente, eu prefiro utilizar aplicações externas para autenticação, como o Keycloak, AWS Cognito ou até mesmo um MS especifico utilizando Public/Private Key, mas para fins de teste, simplicidade e custos, optei por implementar a autenticação diretamente na API REST. Dessa forma, conseguimos manter a flexibilidade e controle total sobre o processo de autenticação, sem depender de serviços externos ou adicionar complexidade desnecessária.
 - **Health Check**: Um endpoint simples para monitoramento de saúde da aplicação.
+
+---
+
+## Documentação Swagger/OpenAPI
+
+A API REST é documentada usando **OpenAPI 3.0** (anteriormente conhecido como Swagger) através da biblioteca `open_api_spex`. Isso fornece documentação interativa e testável dos endpoints REST.
+
+### Endpoints de Documentação
+
+| Endpoint           | Descrição                                     |
+| ------------------ | --------------------------------------------- |
+| `GET /api/docs`    | Interface Scalar para explorar e testar a API |
+| `GET /api/openapi` | Especificação OpenAPI em formato JSON         |
+
+### Scalar UI
+
+A aplicação utiliza **Scalar** como interface de documentação, uma alternativa moderna ao Swagger UI com melhor UX e performance.
+
+**Acesso:** `http://localhost:4000/api/docs`
+
+**Recursos:**
+
+- Interface intuitiva para explorar todos os endpoints REST
+- Teste de requisições diretamente no browser
+- Visualização de schemas de request/response
+- Documentação de autenticação Bearer (JWT)
+- Exemplos de requisições e respostas
+
+### Schemas e Requests
+
+A especificação OpenAPI é gerada automaticamente a partir dos controllers usando annotations:
+
+```elixir
+# Exemplo de annotation em controller
+use OpenApiSpex.ControllerSpecs
+
+alias RecruitmentTestWeb.Swagger.{Requests, Schemas}
+
+operation :authenticate,
+  summary: "Login de usuário",
+  request_body: {"Login payload", "application/json", Requests.Login},
+  responses: [
+    ok: {"Login successful", "application/json", Schemas.TokenResponse},
+    unauthorized: {"Invalid credentials", "application/json", Schemas.Error}
+  ]
+```
+
+**Estrutura:**
+
+```
+lib/recruitment_test_web/swagger/
+├── api_spec.ex          # Especificação principal OpenAPI
+├── requests/            # Schemas de request (inputs)
+│   ├── login.ex
+│   ├── refresh_token.ex
+│   └── create_user.ex
+└── schemas/             # Schemas de response (outputs)
+    ├── token_response.ex
+    ├── user_response.ex
+    └── error.ex
+```
+
+**Configuração:**
+
+```elixir
+# Especificação OpenAPI (api_spec.ex)
+%OpenApi{
+  info: %Info{
+    title: "RecruitmentTest API",
+    version: "1.0.0",
+    description: "API for managing enterprise collaborators, contracts, tasks, and reports"
+  },
+  servers: [Server.from_endpoint(Endpoint)],
+  paths: Paths.from_router(Router),
+  components: %Components{
+    securitySchemes: %{
+      "BearerAuth" => %SecurityScheme{
+        type: "http",
+        scheme: "bearer"
+      }
+    }
+  }
+}
+```
+
+> **Nota:** Apenas os endpoints REST (autenticação, criação de usuários, health check) são documentados no OpenAPI. A API GraphQL possui sua própria documentação através do GraphiQL (disponível em `/graphiql` em desenvolvimento).
 
 ---
 
@@ -843,6 +945,7 @@ Em **desenvolvimento**, permite qualquer origem localhost em qualquer porta. Par
 | `phoenix`                | ~> 1.7.18 | Framework web principal                   |
 | `absinthe`               | ~> 1.7    | Framework GraphQL                         |
 | `absinthe_plug`          | ~> 1.5    | Integração Absinthe ↔ Plug/Phoenix        |
+| `open_api_spex`          | ~> 3.15   | Documentação OpenAPI/Swagger              |
 | `phoenix_ecto`           | ~> 4.5    | Integração Phoenix ↔ Ecto                 |
 | `ecto_sql`               | ~> 3.10   | SQL adapter para Ecto                     |
 | `postgrex`               | >= 0.0.0  | Driver PostgreSQL                         |
@@ -982,4 +1085,11 @@ services:
 - A arquitetura de jobs assíncronos permite que tarefas demoradas sejam processadas sem bloquear a experiência do usuário.
 - A documentação detalhada e os testes abrangentes facilitam a manutenção e evolução do projeto ao longo do tempo.
 
-Obrigado!
+## Referências
+
+- [Phoenix Framework](https://www.phoenixframework.org/)
+- [Absinthe GraphQL](https://hexdocs.pm/absinthe/installation.html)
+- [OpenAPI Spex](https://hexdocs.pm/open_api_spex/readme.html)
+- [Resend](https://resend.com/)
+- [BrasilAPI](https://brasilapi.com.br/docs#cnpj)
+- [Oban](https://hexdocs.pm/oban/readme.html)

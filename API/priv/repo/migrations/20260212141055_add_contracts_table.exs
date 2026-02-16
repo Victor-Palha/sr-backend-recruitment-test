@@ -3,9 +3,13 @@ defmodule RecruitmentTest.Repo.Migrations.AddContractsTable do
 
   def change do
     create table("contracts") do
-      add(:enterprise_id, references(:enterprises, type: :binary_id, on_delete: :nothing), null: false)
+      add(:enterprise_id, references(:enterprises, type: :binary_id, on_delete: :nothing),
+        null: false
+      )
 
-      add(:collaborator_id, references(:collaborators, type: :binary_id, on_delete: :nothing), null: false)
+      add(:collaborator_id, references(:collaborators, type: :binary_id, on_delete: :nothing),
+        null: false
+      )
 
       add(:value, :decimal, precision: 10, scale: 2)
       add(:starts_at, :utc_datetime, null: false)

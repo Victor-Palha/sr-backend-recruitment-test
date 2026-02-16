@@ -1,4 +1,4 @@
-# Documentação da Infraestrutura — ash/recruitment
+# Documentação da Infraestrutura — Victor Palha
 
 ## Índice
 
@@ -24,7 +24,7 @@
 
 ## Visão Geral
 
-A infraestrutura da aplicação **ash/recruitment** é provisionada na **AWS** utilizando **Terraform** com organização modular. A aplicação é uma API Elixir/Phoenix que roda em containers Docker gerenciados pelo **ECS Fargate**, com banco de dados **PostgreSQL (RDS)** e exposição via **Application Load Balancer (ALB)**.
+A infraestrutura da aplicação é provisionada na **AWS** utilizando **Terraform** com organização modular. A aplicação é uma API Elixir/Phoenix que roda em containers Docker gerenciados pelo **ECS Fargate**, com banco de dados **PostgreSQL (RDS)** e exposição via **Application Load Balancer (ALB)**.
 
 **Região AWS:** `us-east-1`  
 **URL da aplicação:** `http://<nome-do-alb>.us-east-1.elb.amazonaws.com`

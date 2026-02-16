@@ -3,7 +3,9 @@ defmodule RecruitmentTest.Repo.Migrations.AddReportsTable do
 
   def change do
     create table("reports") do
-      add(:collaborator_id, references(:collaborators, type: :binary_id, on_delete: :nothing), null: false)
+      add(:collaborator_id, references(:collaborators, type: :binary_id, on_delete: :nothing),
+        null: false
+      )
 
       add(:task_id, references(:tasks, type: :binary_id, on_delete: :nothing), null: false)
       add(:task_name, :string, null: false)
