@@ -3,8 +3,8 @@ defmodule RecruitmentTestWeb.Swagger.ApiSpec do
   OpenAPI specification for RecruitmentTest API.
   """
 
-  alias OpenApiSpex.{Info, OpenApi, Paths, Server, Components, SecurityScheme}
-  alias RecruitmentTestWeb.{Endpoint, Router}
+  alias OpenApiSpex.{Info, OpenApi, Paths, Components, SecurityScheme}
+  alias RecruitmentTestWeb.Router
   @behaviour OpenApi
 
   @impl OpenApi
