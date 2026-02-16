@@ -18,7 +18,7 @@ ARG DEBIAN_VERSION=bullseye-20260202-slim
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} AS builder
 
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git \
@@ -31,30 +31,11 @@ WORKDIR /app
 RUN mix local.hex --force && \
     mix local.rebar --force
 
-# set build ENV
-ENV MIX_ENV="prod"
-
-# Receba os argumentos de build
-ARG GUARDIAN_ISSUER
-ARG GUARDIAN_SECRET_KEY
-ARG DATABASE_HOST
-ARG DATABASE_USER
-ARG DATABASE_PASSWORD
-ARG DATABASE_DB
-ARG DATABASE_URL
-ARG SECRET_KEY_BASE
-ARG RESEND_API_KEY
-
-# Configure as variáveis de ambiente para o build
-ENV GUARDIAN_ISSUER=${GUARDIAN_ISSUER} \
-    GUARDIAN_SECRET_KEY=${GUARDIAN_SECRET_KEY} \
-    DATABASE_URL=${DATABASE_URL} \
-    SECRET_KEY_BASE=${SECRET_KEY_BASE} \
-    DATABASE_HOST=${DATABASE_HOST} \
-    DATABASE_USER=${DATABASE_USER} \
-    DATABASE_PASSWORD=${DATABASE_PASSWORD} \
-    DATABASE_DB=${DATABASE_DB} \
-    RESEND_API_KEY=${RESEND_API_KEY}
+# set build ENV - by default, it will be prod, but can be overwritten by ENV in compose
+ARG DATABASE_HOST=database
+ARG MIX_ENV=prod
+ENV MIX_ENV=${MIX_ENV:-prod}
+ENV DATABASE_HOST=${DATABASE_HOST}
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
@@ -69,7 +50,6 @@ RUN mix deps.compile
 
 COPY priv priv
 COPY lib lib
-COPY assets assets
 
 # Compile the release
 RUN mix compile
@@ -80,7 +60,7 @@ COPY config/runtime.exs config/
 # Copy rel se existir
 COPY rel rel
 
-# Gere o release apenas UMA vez
+# Gere o release
 RUN mix release
 
 # start a new build stage so that the final image will only contain
@@ -94,40 +74,21 @@ RUN apt-get update -y && \
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 WORKDIR "/app"
 RUN chown nobody /app
 
-# set runner ENV
-ENV MIX_ENV="prod"
-
-# Receba os argumentos novamente para runtime
-ARG GUARDIAN_ISSUER
-ARG GUARDIAN_SECRET_KEY
-ARG DATABASE_URL
-ARG SECRET_KEY_BASE
-ARG DATABASE_HOST
-ARG DATABASE_USER
-ARG DATABASE_PASSWORD
-ARG DATABASE_DB
-ARG RESEND_API_KEY
-
-# Configure as variáveis de ambiente para runtime
-ENV GUARDIAN_ISSUER=${GUARDIAN_ISSUER} \
-    GUARDIAN_SECRET_KEY=${GUARDIAN_SECRET_KEY} \
-    DATABASE_URL=${DATABASE_URL} \
-    SECRET_KEY_BASE=${SECRET_KEY_BASE} \
-    DATABASE_HOST=${DATABASE_HOST} \
-    DATABASE_USER=${DATABASE_USER} \
-    DATABASE_PASSWORD=${DATABASE_PASSWORD} \
-    DATABASE_DB=${DATABASE_DB} \
-    RESEND_API_KEY=${RESEND_API_KEY}
+# set runner ENV - by default, it will be prod, but can be overwritten by ENV in compose
+ARG DATABASE_HOST=database
+ARG MIX_ENV=prod
+ENV MIX_ENV=${MIX_ENV:-prod}
+ENV DATABASE_HOST=${DATABASE_HOST}
 
 # Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /app/_build/prod/rel/recruitment_test ./
+COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/recruitment_test ./
 
 COPY --chown=nobody:root entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh

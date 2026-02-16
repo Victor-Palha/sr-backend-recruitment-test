@@ -37,15 +37,19 @@ defmodule RecruitmentTestWeb.Router do
     pipe_through(:graphql)
 
     forward("/graphql", Absinthe.Plug, schema: RecruitmentTestWeb.Schema)
-
-    forward("/graphiql", Absinthe.Plug.GraphiQL,
-      schema: RecruitmentTestWeb.Schema,
-      interface: :playground
-    )
   end
 
   if Application.compile_env(:recruitment_test, :dev_routes) do
     import Phoenix.LiveDashboard.Router
+
+    scope "/" do
+      pipe_through(:graphql)
+
+      forward("/graphiql", Absinthe.Plug.GraphiQL,
+        schema: RecruitmentTestWeb.Schema,
+        interface: :playground
+      )
+    end
 
     scope "/dev" do
       pipe_through([:fetch_session, :protect_from_forgery])

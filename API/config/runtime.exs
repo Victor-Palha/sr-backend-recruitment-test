@@ -16,9 +16,7 @@ import Config
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
-if System.get_env("PHX_SERVER") do
-  config :recruitment_test, RecruitmentTestWeb.Endpoint, server: true
-end
+config :recruitment_test, RecruitmentTestWeb.Endpoint, server: true
 
 if config_env() == :prod do
   database_url =
@@ -42,7 +40,22 @@ if config_env() == :prod do
     adapter: Swoosh.Adapters.Resend,
     api_key:
       System.get_env("RESEND_API_KEY") ||
-        raise("RESEND_API_KEY não configurada!")
+        raise("""
+        environment variable RESEND_API_KEY is missing.
+        """)
+
+  # Configuring the Guardian
+  guardian_issuer = System.get_env("GUARDIAN_ISSUER") || "recruitment_test"
+
+  guardian_secret_key =
+    System.get_env("GUARDIAN_SECRET_KEY") ||
+      raise """
+      environment variable GUARDIAN_SECRET_KEY is missing.
+      """
+
+  config :recruitment_test, RecruitmentTest.Guardian,
+    issuer: guardian_issuer,
+    secret_key: guardian_secret_key
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
@@ -71,8 +84,7 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port
     ],
-    secret_key_base: secret_key_base,
-    server: true
+    secret_key_base: secret_key_base
 
   # ## SSL Support
   #

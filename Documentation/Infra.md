@@ -270,6 +270,7 @@ O RDS também aceita conexões diretas da internet (porta 5432) para facilitar a
 | `GUARDIAN_SECRET_KEY` | `terraform.tfvars`                                                 |
 | `PORT`                | Variável `app_port` (padrão: 4000)                                 |
 | `SECRET_KEY_BASE`     | `terraform.tfvars`                                                 |
+| `RESEND_API_KEY`      | `terraform.tfvars`                                                 |
 
 **Serviço ECS:**
 
@@ -295,6 +296,7 @@ As variáveis sensíveis são definidas no arquivo `terraform.tfvars` (não vers
 | `guardian_issuer`     | string | Não      | `recruitment_test` |
 | `guardian_secret_key` | string | **Sim**  | —                  |
 | `secret_key_base`     | string | **Sim**  | —                  |
+| `resend_api_key`      | string | **Sim**  | —                  |
 | `app_port`            | number | Não      | `4000`             |
 | `container_cpu`       | number | Não      | `256`              |
 | `container_memory`    | number | Não      | `512`              |
