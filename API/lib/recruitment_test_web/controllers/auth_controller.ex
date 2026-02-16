@@ -3,10 +3,27 @@ defmodule RecruitmentTestWeb.AuthController do
   Controller for handling authentication-related actions: login, logout, and token refresh.
   """
   use RecruitmentTestWeb, :controller
+  use OpenApiSpex.ControllerSpecs
 
   require Logger
 
   alias RecruitmentTest.Contexts.Accounts.Services.{Login, Logout, RefreshToken}
+  alias RecruitmentTestWeb.Swagger.Requests
+  alias RecruitmentTestWeb.Swagger.Schemas
+
+  tags(["Authentication"])
+
+  operation(:authenticate,
+    summary: "Login",
+    description: "Authenticates a user and returns JWT tokens and user info.",
+    request_body:
+      {"Login credentials", "application/json", Requests.LoginRequest, required: true},
+    responses: [
+      ok: {"Success", "application/json", Schemas.AuthResponse},
+      unauthorized: {"Invalid credentials", "application/json", Schemas.ErrorResponse},
+      bad_request: {"Missing parameters", "application/json", Schemas.ErrorResponse}
+    ]
+  )
 
   def authenticate(conn, %{"email" => email, "password" => password}) do
     Logger.info("Authentication request",
@@ -63,6 +80,17 @@ defmodule RecruitmentTestWeb.AuthController do
     |> json(%{error: "Email and password are required"})
   end
 
+  operation(:logout,
+    summary: "Logout",
+    description: "Invalidates a refresh token and logs out the user.",
+    request_body: {"Logout request", "application/json", Requests.LogoutRequest, required: true},
+    responses: [
+      ok: {"Success", "application/json", Schemas.MessageResponse},
+      unauthorized: {"Invalid or expired token", "application/json", Schemas.ErrorResponse},
+      bad_request: {"Missing refresh token", "application/json", Schemas.ErrorResponse}
+    ]
+  )
+
   def logout(conn, %{"refresh_token" => refresh_token}) do
     Logger.info("Logout request", controller: "auth", action: "logout")
 
@@ -90,6 +118,18 @@ defmodule RecruitmentTestWeb.AuthController do
     |> put_status(:bad_request)
     |> json(%{error: "Refresh token is required"})
   end
+
+  operation(:refresh,
+    summary: "Refresh Token",
+    description: "Refreshes the access token using a valid refresh token.",
+    request_body:
+      {"Refresh token request", "application/json", Requests.RefreshTokenRequest, required: true},
+    responses: [
+      ok: {"Success", "application/json", Schemas.TokenResponse},
+      unauthorized: {"Invalid or expired token", "application/json", Schemas.ErrorResponse},
+      bad_request: {"Missing refresh token", "application/json", Schemas.ErrorResponse}
+    ]
+  )
 
   def refresh(conn, %{"refresh_token" => refresh_token}) do
     Logger.info("Token refresh request", controller: "auth", action: "refresh")

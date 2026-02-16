@@ -1,4 +1,4 @@
-# Sr. Backend Recruitment Test - [HUBS CONTABILIDADE]
+# Sr. Backend Recruitment Test - Victor Palha
 
 API backend em **Elixir/Phoenix** para gestão de empresas, colaboradores, contratos, tarefas e relatórios. Expõe uma API **GraphQL** (Absinthe) com autenticação **JWT** (Guardian) e endpoints REST para autenticação.
 
@@ -48,6 +48,7 @@ docker compose --env-file ./API/.env up --build -d
 ```
 
 A API estará disponível em **http://localhost:4000**.
+Swagger/Scalar estará disponível em **http://localhost:4000/api/docs**.
 
 > **Nota:** As migrações rodam automaticamente via `entrypoint.sh`. Para rodar a seed manualmente, veja a seção abaixo.
 
@@ -76,6 +77,7 @@ mix phx.server
 ```
 
 A API estará disponível em **http://localhost:4000**.
+Swagger/Scalar estará disponível em **http://localhost:4000/api/docs**.
 
 ### URLs Disponíveis (dev)
 
@@ -83,6 +85,7 @@ A API estará disponível em **http://localhost:4000**.
 | -------------------------------------- | ---------------------- |
 | `http://localhost:4000/graphql`        | Endpoint GraphQL       |
 | `http://localhost:4000/graphiql`       | Playground interativo  |
+| `http://localhost:4000/api/docs`       | Documentação Swagger   |
 | `http://localhost:4000/api/health`     | Health check           |
 | `http://localhost:4000/api/auth/login` | Login (REST)           |
 | `http://localhost:4000/dev/dashboard`  | Phoenix Live Dashboard |
@@ -107,7 +110,11 @@ mix test --trace      # Output detalhado
 
 ## Documentação
 
-| Documento                                                | Descrição                                                                                 |
-| -------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| [Documentação da API](Documentation/API.md)              | Arquitetura, banco de dados, autenticação, GraphQL, regras de negócio, jobs, configuração |
-| [Documentação da Infraestrutura](Documentation/Infra.md) | Terraform, módulos AWS (ECS, RDS, ALB, ECR, VPC), CI/CD, deploy                           |
+A documentação completa da API e da infraestrutura está disponível nos seguintes links abaixo.
+Além disso, dentro da pasta `Documentation/` existe um schema exportado do Postman com exemplos de requisições para cada endpoint da API, facilitando a compreensão e testes manuais caso necessário.
+
+| Documento                                                  | Descrição                                                                                 |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| [Documentação da API](Documentation/API.md)                | Arquitetura, banco de dados, autenticação, GraphQL, regras de negócio, jobs, configuração |
+| [Documentação da Infraestrutura](Documentation/Infra.md)   | Terraform, módulos AWS (ECS, RDS, ALB, ECR, VPC), CI/CD, deploy                           |
+| [Postman Collection](Documentation/PostmanCollection.json) | Esquema exportado do Postman com exemplos de requisições para cada endpoint da API        |

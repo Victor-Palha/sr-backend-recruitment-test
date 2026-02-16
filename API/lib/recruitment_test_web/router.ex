@@ -4,12 +4,21 @@ defmodule RecruitmentTestWeb.Router do
   pipeline :api do
     plug(:accepts, ["json"])
     plug(Plug.RequestId)
+    plug(OpenApiSpex.Plug.PutApiSpec, module: RecruitmentTestWeb.Swagger.ApiSpec)
   end
 
   pipeline :graphql do
     plug(:accepts, ["json"])
     plug(Plug.RequestId)
     plug(RecruitmentTestWeb.Plugs.GraphQLContext)
+  end
+
+  pipeline :browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
   end
 
   pipeline :authenticated do
@@ -23,6 +32,15 @@ defmodule RecruitmentTestWeb.Router do
     post("/auth/login", AuthController, :authenticate)
     post("/auth/refresh", AuthController, :refresh)
     post("/auth/logout", AuthController, :logout)
+
+    get("/openapi", ApiSpecController, :spec)
+  end
+
+  # Scalar API documentation UI
+  scope "/api" do
+    pipe_through :browser
+
+    get "/docs", RecruitmentTestWeb.ScalarController, :index
   end
 
   # Protected endpoints (require authentication)

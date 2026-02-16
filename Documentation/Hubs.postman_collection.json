@@ -1,0 +1,938 @@
+{
+  "info": {
+    "_postman_id": "e2677ec2-9203-4e82-a201-196b997facd5",
+    "name": "Hubs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49273663",
+    "_collection_link": "https://jv-palha-9413419.postman.co/workspace/Jo%C3%A3o-Palha's-Workspace~87c35bde-75f0-4315-88f4-62e4097a5d70/collection/49273663-e2677ec2-9203-4e82-a201-196b997facd5?action=share&source=collection_link&creator=49273663"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Auth",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"admin123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{hubs_aws_host}}/api/auth/login",
+              "protocol": "http",
+              "host": ["{{hubs_aws_host}}"],
+              "path": ["api", "auth", "login"],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "developer",
+                  "disabled": true
+                },
+                {
+                  "key": "is_active",
+                  "value": "false",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refresh_token\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyZWNydWl0bWVudF90ZXN0IiwiZXhwIjoxNzcxNzcwMDIwLCJpYXQiOjE3NzExNjUyMjAsImlzcyI6InJlY3J1aXRtZW50X3Rlc3QiLCJqdGkiOiI4YTAzY2QyNi01OTQ4LTQyZWMtOWQyYy03ZjRhMzgyOTk0YmIiLCJuYmYiOjE3NzExNjUyMTksInN1YiI6ImQ4Yjg5ZGViLTZhZGYtNGNhZS05M2M3LTQ1OGFlZTQ3YWU0NiIsInR5cCI6InJlZnJlc2gifQ.bBcThdtKn57Uu57U471rc8wnNMwh6QJEkutnNt5y3q_ovRHVIHe44KqnDTytdkgaJZ4oLMlxP_3JWl06JqsIMA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{hubs_aws_host}}/api/auth/refresh",
+              "protocol": "http",
+              "host": ["{{hubs_aws_host}}"],
+              "path": ["api", "auth", "refresh"],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "developer",
+                  "disabled": true
+                },
+                {
+                  "key": "is_active",
+                  "value": "false",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refresh_token\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJyZWNydWl0bWVudF90ZXN0IiwiZXhwIjoxNzcxNTU0NTMzLCJpYXQiOjE3NzA5NDk3MzMsImlzcyI6InJlY3J1aXRtZW50X3Rlc3QiLCJqdGkiOiJlNDBkYTkxMy01YTg3LTQzMzgtYWRjZi1jN2ZiMjVmNDM3OGYiLCJuYmYiOjE3NzA5NDk3MzIsInN1YiI6IjZmMDFhNmVkLTk2ZGMtNDU2ZS04YjYxLTI5NzQ5NDlhNjZkYSIsInR5cCI6InJlZnJlc2gifQ.oxK2_1fZqrS7Rj_g0F5Xk58Mc8d8B3yKIe5N_SXhraplOt9dqoajYx3N90oHkKytZOodMlqvZSmb2tWzBUDa4A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://{{hubs_aws_host}}/api/auth/logout",
+              "protocol": "http",
+              "host": ["{{hubs_aws_host}}"],
+              "path": ["api", "auth", "logout"],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "developer",
+                  "disabled": true
+                },
+                {
+                  "key": "is_active",
+                  "value": "false",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Graph",
+      "item": [
+        {
+          "name": "Collaborators",
+          "item": [
+            {
+              "name": "Get Collaborator by ID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "  query GetCollaborator($id: ID!) { \n        collaborator(id: $id) { \n            id \n            name \n            email \n            cpf \n            isActive \n            contracts { \n                id \n                value \n                startsAt \n                expiresAt \n                status \n            } \n            tasks { \n                id \n                name \n                description \n                status \n                priority \n            } \n            reports { \n                id \n                taskName \n                taskDescription \n                collaboratorName \n                completedAt \n            } \n            insertedAt \n            updatedAt \n        } \n    }",
+                    "variables": "{\n    \"id\": \"bc7cfc0e-7bec-427a-9130-440513b51724\"\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Collaborator",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation CreateCollaborator($input: CreateCollaboratorInput!) { \n    createCollaborator(input: $input) { \n        id name email cpf isActive insertedAt updatedAt \n    } \n}",
+                    "variables": "{    \n    \"input\": {\n        \"name\": \"João Victor Ferreira Palha\",\n        \"email\": \"jv.palha@gmail.com\",\n        \"cpf\": \"538.518.442-61\"\n    }\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Collaborator",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation UpdateCollaborator($id: ID!, $input: UpdateCollaboratorInput!) { updateCollaborator(id: $id, input: $input) { id name email cpf isActive insertedAt updatedAt } }",
+                    "variables": "{\n    \"id\": \"bc7cfc0e-7bec-427a-9130-440513b51724\",\n    \"input\": {\n      \"name\": \"Esau Bandeirolas\",\n      \"email\": \"john.updated@example.com\"\n    }\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Collaborator",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation DeleteCollaborator($id: ID!) { deleteCollaborator(id: $id) { success collaborator { id name email } } }",
+                    "variables": "{\n    \"id\": \"bc7cfc0e-7bec-427a-9130-440513b51724\"\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Collaborators",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query ListCollaborators($pagination: PaginationInput, $filters: CollaboratorFilters) \n{ \n    collaborators(pagination: $pagination, filters: $filters) { \n        data { id name email cpf isActive insertedAt updatedAt } \n        pageInfo { hasNextPage hasPreviousPage startCursor endCursor totalCount }\n    } \n}",
+                    "variables": "{\n    \"pagination\": { \"page\": 1, \"pageSize\": 10 },\n    \"filters\": { \"isActive\": true }\n  }"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Users",
+          "item": [
+            {
+              "name": "List User",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query ListUsers($pagination: PaginationInput, $filters: UserFilters) \n{ \n    users(pagination: $pagination, filters: $filters) { \n        data { id name email role isActive insertedAt updatedAt } \n        pageInfo { hasNextPage hasPreviousPage startCursor endCursor totalCount }\n    } \n}",
+                    "variables": "{\n    \"pagination\": { \"page\": 1, \"pageSize\": 10 },\n    \"filters\": {  }\n  }"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get User By ID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "  query GetUser($id: ID!) { \n        user(id: $id) { \n            id \n            name \n            email \n            # role\n            isActive \n            insertedAt \n            updatedAt \n        } \n    }",
+                    "variables": "{\n    \"id\": \"dc8673ae-c0f8-48fd-96a1-e374fcf6f9e4\"\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Enterprise",
+          "item": [
+            {
+              "name": "Get Enterprise by ID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query GetEnterprise($id: ID!) { \n    enterprise(id: $id) { \n        id name commercialName cnpj description \n        contracts { \n            id value startsAt expiresAt status \n            collaborator {\n                id\n                name\n                cpf\n                contracts {\n                    id\n                }\n                tasks {\n                    id\n                    description\n                    status\n                }\n                reports {\n                    id\n                    taskName\n                    taskDescription\n                }\n            }\n        } \n        insertedAt updatedAt \n    } \n}",
+                    "variables": "{ \"id\": \"cb983875-93e0-46cc-bc5f-ea6c0499c7ba\" }"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Enterprises",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query ListEnterprises($pagination: PaginationInput, $filters: EnterpriseFilters) { \n    enterprises(pagination: $pagination, filters: $filters) { \n        data { id name commercialName cnpj description insertedAt updatedAt } \n        pageInfo { hasNextPage hasPreviousPage startCursor endCursor totalCount } \n    }\n}",
+                    "variables": "{\n    \"pagination\": { \"page\": 1, \"pageSize\": 10 },\n    \"filters\": { \"name\": \"Te\" }\n  }"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Enterprise",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation CreateEnterprise($input: CreateEnterpriseInput!) { createEnterprise(input: $input) { id name commercialName cnpj description insertedAt updatedAt } }",
+                    "variables": "{    \"input\": {\n      \"cnpj\": \"61.694.930/0001-87\",\n      \"description\": \"Software Company\"\n    }}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Enterprise",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation UpdateEnterprise($id: ID!, $input: UpdateEnterpriseInput!) { updateEnterprise(id: $id, input: $input) { id name commercialName cnpj description insertedAt updatedAt } }",
+                    "variables": "{    \"id\": \"0fb6a0a1-ac8c-4cb9-bc93-d4a09f156322\",\n    \"input\": {\n      \"name\": \"EMPRESA XYZ LTDA\",\n      \"description\": \"Updated description\"\n    }}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Enterprise",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation DeleteEnterprise($id: ID!) { deleteEnterprise(id: $id) { success enterprise { id name cnpj } } }",
+                    "variables": "{    \n    \"id\": \"3bc12e05-8dab-45e2-9792-4e6d36bb6792\"\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Contracts",
+          "item": [
+            {
+              "name": "Get Contract by ID Copy",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query GetContract($id: ID!) { \n    contract(id: $id) { \n        id value startsAt expiresAt status \n        enterprise { id name commercialName cnpj } \n        collaborator { id name email } \n        insertedAt \n        updatedAt \n    } \n}",
+                    "variables": "{\n    \"id\": \"44479810-175f-47ff-ba0b-48590337ce52\"\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Contracts",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query ListContracts($pagination: PaginationInput, $filters: ContractFilters) { \n    contracts(pagination: $pagination, filters: $filters) { \n        data { \n            id value startsAt expiresAt status \n            enterprise { id name insertedAt updatedAt } \n            collaborator { id name email isActive insertedAt updatedAt} \n            insertedAt \n            updatedAt \n        } \n        pageInfo { hasNextPage hasPreviousPage startCursor endCursor totalCount } \n    } \n}",
+                    "variables": "{\n    \"pagination\": { \"page\": 1, \"pageSize\": 10 },\n    \"filters\": { \"status\": \"ACTIVE\" }\n  }"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Contract",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation CreateContract($input: CreateContractInput!) { createContract(input: $input) { id value startsAt expiresAt status enterprise { id name } collaborator { id name } insertedAt updatedAt } }",
+                    "variables": "{    \n    \"input\": {\n      \"enterpriseId\": \"cb983875-93e0-46cc-bc5f-ea6c0499c7ba\",\n      \"collaboratorId\": \"5fc17b85-8bc6-41a8-8ceb-1c60f89743e2\",\n      \"value\": \"9000.00\",\n      \"startsAt\": \"2026-02-15T00:00:00Z\",\n      \"expiresAt\": \"2027-02-15T00:00:00Z\",\n      \"status\": \"ACTIVE\"\n    }\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Contract",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation UpdateContract($id: ID!, $input: UpdateContractInput!) { updateContract(id: $id, input: $input) { id value startsAt expiresAt status enterprise { id name } collaborator { id name } insertedAt updatedAt } }",
+                    "variables": "{    \n    \"id\": \"c913db3f-843a-4c89-823a-a8f66b0892e9\",\n    \"input\": {\n        \"value\": \"10500.00\"\n    }\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Contract",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation DeleteContract($id: ID!) { deleteContract(id: $id) { success contract { id value status } } }",
+                    "variables": "{    \n    \"id\": \"efa1759e-1690-49f0-93ef-211b2a6bcf2f\"\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "TASKS",
+          "item": [
+            {
+              "name": "Get Tasks by ID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query GetTask($id: ID!) { \n    task(id: $id) { \n        id name description status priority \n        collaborator { id name email } \n        report { id taskName completedAt } \n        insertedAt \n        updatedAt \n    } \n}",
+                    "variables": "{\n    \"id\": \"9eb7fc77-8a7c-4fc5-a0f7-0b4c3d0c6fdd\"\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Tasks",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query ListTasks($pagination: PaginationInput, $filters: TaskFilters) { \n    tasks(pagination: $pagination, filters: $filters) { \n        data { \n            id name description status priority \n            collaborator { id name } \n            insertedAt \n            updatedAt \n        } \n        pageInfo { hasNextPage hasPreviousPage startCursor endCursor totalCount } \n    } \n}",
+                    "variables": "{\n    \"pagination\": { \"page\": 1, \"pageSize\": 10 },\n    \"filters\": { \"status\": \"PENDING\", \"priority\": 1 }\n  }"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Task",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation CreateTask($input: CreateTaskInput!) { createTask(input: $input) { id name description status priority collaborator { id name } insertedAt updatedAt } }",
+                    "variables": "{    \n    \"input\": {\n        \"collaboratorId\": \"5fc17b85-8bc6-41a8-8ceb-1c60f89743e2\",\n        \"name\": \"Test AWS infraestructure PROD MODE\",\n        \"description\": \"I should test all the graphql queries and mutations to validate that every thing is working as expected. Also validate the logs\",\n        \"status\": \"PENDING\",\n        \"priority\": 1\n    }\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Task",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "mutation UpdateTask($id: ID!, $input: UpdateTaskInput!) { updateTask(id: $id, input: $input) { id name description status priority collaborator { id name } insertedAt updatedAt } }",
+                    "variables": "{    \n    \"id\": \"852d8f79-4288-4d41-a75e-f7b1adf27d9b\",\n    \"input\": {\n        \"status\": \"COMPLETED\"\n    }\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Reports",
+          "item": [
+            {
+              "name": "Get Reports by ID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query GetReport($id: ID!) { \n    report(id: $id) { \n        id taskName taskDescription collaboratorName completedAt \n        collaborator { id name email } \n        task { id name status } \n        insertedAt \n    } \n}",
+                    "variables": "{\n    \"id\": \"cc20f767-174f-4bdd-8645-4b0aed643506\"\n}"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Reports",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{hubs_aws_token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "graphql",
+                  "graphql": {
+                    "query": "query ListReports($pagination: PaginationInput, $filters: ReportFilters) { \n    reports(pagination: $pagination, filters: $filters) { \n        data { \n            id taskName taskDescription collaboratorName completedAt \n            collaborator { id name } \n            task { id name } \n            insertedAt \n        } \n        pageInfo { hasNextPage hasPreviousPage startCursor endCursor totalCount } \n    } \n}",
+                    "variables": "{\n    \"pagination\": { \"page\": 1, \"pageSize\": 10 },\n    \"filters\": {  }\n  }"
+                  }
+                },
+                "url": {
+                  "raw": "http://{{hubs_aws_host}}/graphql",
+                  "protocol": "http",
+                  "host": ["{{hubs_aws_host}}"],
+                  "path": ["graphql"]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Create User",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{hubs_aws_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Palha Victor\",\n    \"email\": \"jv.palha@gmail.com\",\n    \"password\": \"Admin@123\",\n    \"role\": \"admin\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://{{hubs_aws_host}}/api/users",
+          "protocol": "http",
+          "host": ["{{hubs_aws_host}}"],
+          "path": ["api", "users"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Health",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://{{hubs_aws_host}}/api/health",
+          "protocol": "http",
+          "host": ["{{hubs_aws_host}}"],
+          "path": ["api", "health"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

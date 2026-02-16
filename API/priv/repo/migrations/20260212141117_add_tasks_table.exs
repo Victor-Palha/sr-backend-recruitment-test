@@ -6,7 +6,9 @@ defmodule RecruitmentTest.Repo.Migrations.AddTasksTable do
       add(:name, :string, null: false)
       add(:description, :text)
 
-      add(:collaborator_id, references(:collaborators, type: :binary_id, on_delete: :nothing), null: false)
+      add(:collaborator_id, references(:collaborators, type: :binary_id, on_delete: :nothing),
+        null: false
+      )
 
       add(:status, :string, null: false, default: "pending")
       add(:priority, :integer, null: false, default: 0)

@@ -53,7 +53,8 @@ defmodule RecruitmentTest.MixProject do
       {:bcrypt_elixir, "~> 3.0"},
       {:dataloader, "~> 1.0.11"},
       {:oban, "~> 2.19"},
-      {:igniter, "~> 0.5", only: [:dev]}
+      {:igniter, "~> 0.5", only: [:dev]},
+      {:open_api_spex, "~> 3.21"}
     ]
   end
 

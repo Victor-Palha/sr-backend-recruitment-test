@@ -105,7 +105,10 @@ defmodule RecruitmentTest.Contexts.Tasks.Services.UpdateTest do
       assert updated_task.priority == 1
     end
 
-    test "does not update collaborator_id even if provided", %{task: task, collaborator: collaborator} do
+    test "does not update collaborator_id even if provided", %{
+      task: task,
+      collaborator: collaborator
+    } do
       {:ok, another_collaborator} =
         %Collaborator{}
         |> Collaborator.changeset(%{
